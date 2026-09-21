@@ -18,7 +18,7 @@ export default class SceneView implements ISceneView {
 	context: GPUCanvasContext;
 	scene: Scene;
 	backgroundColor: [number, number, number, number];
-	readonly viewFactory: ViewsFactory;
+	viewFactory: ViewsFactory;
 	views: View[] = [];
 
 	constructor({ scene, device, context, backgroundColor }: SceneViewProps) {
@@ -26,7 +26,7 @@ export default class SceneView implements ISceneView {
 		this.scene = scene;
 		this.backgroundColor = backgroundColor;
 		this.context = context;
-		this.viewFactory = new ViewsFactory(device);
+		this.viewFactory = new ViewsFactory(device, context);
 	}
 
 	init() {
@@ -49,6 +49,9 @@ export default class SceneView implements ISceneView {
 		};
 		const encoder = this.device!.createCommandEncoder({ label: "encoder" });
 		const pass = encoder.beginRenderPass(renderPassDescriptor);
+		this.views.forEach((v) => {
+			v.render(pass);
+		});
 		pass.end();
 		this.device!.queue.submit([encoder.finish()]);
 	}

@@ -1,15 +1,24 @@
-import type { IAsset } from "../../core/asset";
+import type Asset from "../../core/asset/asset";
 
 interface IViewProperties {
-  buffer: GPUBuffer | undefined;
-  render: () => void;
-  readonly asset: IAsset | undefined;
-  readonly device: GPUDevice | undefined;
+	buffer: GPUBuffer | undefined;
+	asset: Asset | undefined;
+	device: GPUDevice | undefined;
+	context: GPUCanvasContext | undefined;
+	pipeline: GPURenderPipeline | undefined;
+	shaderModule: GPUShaderModule | undefined;
+	render: (pass: GPURenderPassEncoder) => void;
 }
 
 export default abstract class View implements IViewProperties {
-  asset: IAsset | undefined;
-  device: GPUDevice | undefined;
-  abstract render(): void;
-  buffer: GPUBuffer | undefined;
+	pipeline: GPURenderPipeline | undefined;
+	shaderModule: GPUShaderModule | undefined;
+	asset: Asset | undefined;
+	device: GPUDevice | undefined;
+	context: GPUCanvasContext | undefined;
+	buffer: GPUBuffer | undefined;
+	abstract render(pass: GPURenderPassEncoder): void;
+	protected abstract createBuffer(): GPUBuffer;
+	protected abstract createShaderModule(): GPUShaderModule;
+	protected abstract createPipeline(): GPURenderPipeline;
 }

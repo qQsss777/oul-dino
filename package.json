@@ -1,18 +1,18 @@
 {
-  "name": "oul-dino",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "check": "biome check --write",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.5.14",
-    "@webgpu/types": "^0.1.72",
-    "typescript": "~6.0.2",
-    "vite": "^8.2.2"
-  }
+	"name": "oul-dino",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"check": "biome check --write",
+		"preview": "vite preview"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.14",
+		"@webgpu/types": "^0.1.72",
+		"typescript": "~6.0.2",
+		"vite": "^8.2.2"
+	}
 }

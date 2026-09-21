@@ -1,5 +1,5 @@
 import GameApplication from "./application";
-import game from "./game";
+import { generateGame } from "./game";
 import "./style.css";
 
 async function main() {
@@ -8,8 +8,9 @@ async function main() {
     return;
   }
   const backgroundColor: [number, number, number, number] = [
-    0.8, 0.86, 0.22, 1,
+    0.4, 0.87, 0.93, 1,
   ];
+  const game = await generateGame();
   const gameApplication = new GameApplication({
     canvas,
     game,
@@ -18,4 +19,7 @@ async function main() {
   await gameApplication.init();
   gameApplication.render();
 }
-main();
+
+window.addEventListener("DOMContentLoaded", () => {
+  main();
+});

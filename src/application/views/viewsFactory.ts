@@ -1,23 +1,48 @@
 import Actor from "../../core/actor";
-import type { IAsset } from "../../core/asset";
+import type Asset from "../../core/asset/asset";
+import ImageAsset from "../../core/asset/imageAsset";
+import type MaterialAsset from "../../core/asset/materialAsset";
 import ActorView from "./actorView";
-import AssetView from "./assetView";
+import ImageView from "./imageView";
+import MaterialView from "./materialView";
 import type View from "./view";
 
 interface IViewsFactoryProps {
-	device: GPUDevice;
-	createView: (asset: IAsset) => View;
+  device: GPUDevice;
+  context: GPUCanvasContext;
+  createView: (asset: MaterialAsset) => View;
 }
 export default class ViewsFactory implements IViewsFactoryProps {
-	readonly device: GPUDevice;
-	constructor(device: GPUDevice) {
-		this.device = device;
-	}
+  device: GPUDevice;
+  context: GPUCanvasContext;
 
-	createView(asset: IAsset): View {
-		if (asset instanceof Actor) {
-			return new ActorView({ asset, device: this.device });
-		}
-		return new AssetView({ asset, device: this.device });
-	}
+  constructor(device: GPUDevice, context: GPUCanvasContext) {
+    this.device = device;
+    this.context = context;
+  }
+
+  createView(asset: Asset): View {
+    if (asset instanceof Actor) {
+      return new ActorView({
+        asset,
+        device: this.device,
+        context: this.context,
+      });
+    }
+    if (asset instanceof ImageAsset) {
+      const imageAsset = asset as ImageAsset;
+      return new ImageView({
+        asset: imageAsset,
+        device: this.device,
+        context: this.context,
+      });
+    } else {
+      const materialAsset = asset as MaterialAsset;
+      return new MaterialView({
+        asset: materialAsset,
+        device: this.device,
+        context: this.context,
+      });
+    }
+  }
 }

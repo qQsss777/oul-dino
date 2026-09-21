@@ -1,4 +1,4 @@
-import type { IAsset } from "../asset";
+import type { IAsset } from "../asset/asset";
 
 interface SceneProperties {
 	assets: IAsset[];

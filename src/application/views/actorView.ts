@@ -1,3 +1,3 @@
-import AssetView from "./assetView";
+import AssetView from "./materialView";
 
 export default class ActorView extends AssetView {}

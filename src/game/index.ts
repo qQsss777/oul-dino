@@ -1,10 +1,23 @@
-import Actor from "../core/actor";
 import Game from "../core/game";
-import scene from "./scene";
+import Scene from "../core/scene";
+import ground from "./ground";
+import sky from "./sky";
 
 // game is for interaction with GameApplication and player inputs
-export default new Game({
-	scene: scene,
-	player: null,
-	enemys: [],
-});
+const loadScene = async (): Promise<Scene> => {
+  await Promise.all([ground.load(), sky.load()]);
+  return new Scene({
+    assets: [ground, sky],
+  });
+};
+
+const generateGame = async () => {
+  const scene = await loadScene();
+  return new Game({
+    scene: scene,
+    player: null,
+    enemys: [],
+  });
+};
+
+export { generateGame };

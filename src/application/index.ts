@@ -46,6 +46,7 @@ export default class GameApplication implements GameApplicationProperties {
 			console.error("need a browser that supports WebGPU");
 			return;
 		}
+		this.#attachResizeObserver();
 
 		this.context = this.canvas.getContext("webgpu") as GPUCanvasContext;
 		this.presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -64,5 +65,13 @@ export default class GameApplication implements GameApplicationProperties {
 
 	render() {
 		this.sceneView?.render();
+	}
+
+	#attachResizeObserver() {
+		const onResize: ResizeObserverCallback = (entries) => {
+			console.log(this.canvas);
+		};
+		const resizeObserver = new ResizeObserver(onResize);
+		resizeObserver.observe(this.canvas);
 	}
 }
