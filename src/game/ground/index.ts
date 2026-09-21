@@ -23,7 +23,7 @@ const ground = new ImageAsset({
     1,
     0, // ( 1, -0.3)
   ]),
-  sourcePath: "/assets/ground.png",
+  sourcePath: "./assets/ground.png",
   properties: {
     interpolation: {
       x: "nearest",
