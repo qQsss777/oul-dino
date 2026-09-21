@@ -1,3 +1,4 @@
+import type Actor from "../core/actor";
 import Game from "../core/game";
 import Scene from "../core/scene";
 import ground from "./ground";
@@ -15,8 +16,8 @@ const generateGame = async () => {
   const scene = await loadScene();
   return new Game({
     scene: scene,
-    player: null,
-    enemys: [],
+    player: {} as Actor,
+    enemys: [] as Actor[],
   });
 };
 
