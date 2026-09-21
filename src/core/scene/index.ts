@@ -1,11 +1,11 @@
-import type { IAsset } from "../asset/asset";
+import type Asset from "../asset/asset";
 
 interface SceneProperties {
-	assets: IAsset[];
+  assets: Asset[];
 }
 export default class Scene implements SceneProperties {
-	assets: IAsset[];
-	constructor(properties: SceneProperties) {
-		this.assets = properties.assets;
-	}
+  assets: Asset[];
+  constructor(properties: SceneProperties) {
+    this.assets = properties.assets;
+  }
 }
