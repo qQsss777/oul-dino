@@ -1,4 +1,4 @@
-import Actor from "../../core/actor";
+import Actor from "../../core/actor/actor";
 import type Asset from "../../core/asset/asset";
 import ImageAsset from "../../core/asset/imageAsset";
 import type MaterialAsset from "../../core/asset/materialAsset";

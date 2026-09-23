@@ -23,21 +23,29 @@ export default class ImageView extends View {
   pipeline: GPURenderPipeline;
   buffer: GPUBuffer;
   uvBuffer: GPUBuffer;
+  offsetBuffer: GPUBuffer;
   uvs: Float32Array;
+  offset: Float32Array;
 
   constructor(properties: ImageAssetConstructor) {
     super();
     this.asset = properties.asset;
     this.device = properties.device;
     this.context = properties.context;
+    // mise à jour des valeurs "dynamiques"
     this.uvs = this.updateUvs();
+    this.offset = this.createOffset();
+    // création des ressources "statiques"
     this.buffer = this.createBuffer();
     this.uvBuffer = this.createUvsBuffer();
+    this.offsetBuffer = this.createOffsetBuffer();
     this.texture = this.createTexture();
     this.sampler = this.createSampler();
     this.bindGroupResources = this.createBindGroupResources();
     this.shaderModule = this.createShaderModule();
     this.pipeline = this.createPipeline();
+
+    // on affecte les données au ressources
     const sourceData = this.asset.source as ImageBitmap;
     this.device.queue.copyExternalImageToTexture(
       { source: sourceData },
@@ -50,6 +58,7 @@ export default class ImageView extends View {
       this.asset.geometry.value,
     );
     this.device.queue.writeBuffer(this.uvBuffer, /*bufferOffset=*/ 0, this.uvs);
+    this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
   }
 
   render(pass: GPURenderPassEncoder): void {
@@ -58,6 +67,20 @@ export default class ImageView extends View {
     pass.setVertexBuffer(0, this.buffer);
     pass.setVertexBuffer(1, this.uvBuffer);
     pass.draw(6);
+  }
+
+  //only offset
+  update(): void {
+    this.offset = this.createOffset();
+    this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
+  }
+
+  // delete buffer
+  destroy(): void {
+    this.buffer.destroy();
+    this.offsetBuffer.destroy();
+    this.buffer.destroy();
+    this.texture.destroy();
   }
 
   protected createBuffer(): GPUBuffer {
@@ -72,6 +95,13 @@ export default class ImageView extends View {
     return this.device.createBuffer({
       size: this.uvs.byteLength,
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+  }
+
+  protected createOffsetBuffer(): GPUBuffer {
+    return this.device.createBuffer({
+      size: this.offset.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
   }
 
@@ -102,13 +132,20 @@ export default class ImageView extends View {
       entries: [
         {
           binding: 0,
+          visibility: GPUShaderStage.VERTEX,
+          buffer: {
+            type: "uniform",
+          },
+        },
+        {
+          binding: 1,
           visibility: GPUShaderStage.FRAGMENT,
           texture: {
             sampleType: "float",
           },
         },
         {
-          binding: 1,
+          binding: 2,
           visibility: GPUShaderStage.FRAGMENT,
           sampler: {
             type: "filtering",
@@ -123,10 +160,14 @@ export default class ImageView extends View {
         entries: [
           {
             binding: 0,
-            resource: this.texture.createView(),
+            resource: this.offsetBuffer,
           },
           {
             binding: 1,
+            resource: this.texture.createView(),
+          },
+          {
+            binding: 2,
             resource: this.sampler,
           },
         ],
@@ -139,8 +180,10 @@ export default class ImageView extends View {
       label: `${this.asset.label} shader module`,
       code: `
         @group(0) @binding(0)
-        var imageTexture : texture_2d<f32>;
+        var<uniform> offset : vec2f;
         @group(0) @binding(1)
+        var imageTexture : texture_2d<f32>;
+        @group(0) @binding(2)
         var imageSampler : sampler;
         struct VertexInput {
           @location(0) position: vec2f,
@@ -156,7 +199,7 @@ export default class ImageView extends View {
           -> VertexOutput {
           var output: VertexOutput;
           output.position = vec4f(input.position, 0.0, 1.0);
-          output.uv = input.uv;
+          output.uv = input.uv + offset;
           return output;
         }
         @fragment
@@ -179,7 +222,6 @@ export default class ImageView extends View {
       layout: this.device.createPipelineLayout({
         bindGroupLayouts: [this.bindGroupResources.bindGroupLayout],
       }),
-
       vertex: {
         module: this.shaderModule,
         entryPoint: "vertexMain",
@@ -207,7 +249,6 @@ export default class ImageView extends View {
           },
         ],
       },
-
       fragment: {
         module: this.shaderModule,
         entryPoint: "fragmentMain",
@@ -281,7 +322,6 @@ export default class ImageView extends View {
     const ratioX = (canvasWidth * ratioShapeX) / imageWidth;
     const ratioY = (canvasHeight * ratioShapeY) / imageHeight;
 
-    // 5. on applique les ratio aux coordonnées uv actuelles et on retour les nouvelles valeurs
     return this.asset.uvs.map((uv, index) => {
       if (index % 2 === 0) {
         return uv * ratioX;
@@ -289,5 +329,11 @@ export default class ImageView extends View {
         return uv * ratioY;
       }
     });
+  }
+
+  protected createOffset(): Float32Array {
+    const xOffset = this.asset.properties.offset?.x ?? 0;
+    const yOffset = this.asset.properties.offset?.y ?? 0;
+    return new Float32Array([xOffset, yOffset]);
   }
 }

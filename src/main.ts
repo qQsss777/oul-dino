@@ -1,4 +1,4 @@
-import GameApplication from "./application";
+import GameApplication from "./application/application";
 import { generateGame } from "./game";
 import "./style.css";
 
@@ -11,6 +11,7 @@ async function main() {
     0.4, 0.87, 0.93, 1,
   ];
   const game = await generateGame();
+
   const gameApplication = new GameApplication({
     canvas,
     game,

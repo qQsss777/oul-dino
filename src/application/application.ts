@@ -1,4 +1,4 @@
-import type Game from "../core/game";
+import type Game from "../core/game/game";
 import SceneView from "./views/sceneView";
 
 interface GameApplicationConstructor {
@@ -24,7 +24,7 @@ export default class GameApplication implements GameApplicationProperties {
   presentationFormat: GPUTextureFormat | null = null;
   backgroundColor: [number, number, number, number];
   sceneView: SceneView | null = null;
-
+  #previousTime: number = 0;
   constructor(properties: GameApplicationConstructor) {
     this.game = properties.game;
     this.canvas = properties.canvas;
@@ -61,6 +61,10 @@ export default class GameApplication implements GameApplicationProperties {
       backgroundColor: this.backgroundColor,
     });
     this.sceneView.init();
+    this.#attachGameEvents();
+
+    // raF pour une animation fluide
+    requestAnimationFrame(this.#renderLoop);
   }
 
   render() {
@@ -68,10 +72,27 @@ export default class GameApplication implements GameApplicationProperties {
   }
 
   #attachResizeObserver() {
-    const onResize: ResizeObserverCallback = (entries) => {
-      console.log(entries);
-    };
-    const resizeObserver = new ResizeObserver(onResize);
-    resizeObserver.observe(this.canvas);
+    const observer = new ResizeObserver((_entries) => {
+      const compStyles = window.getComputedStyle(this.canvas);
+      this.canvas.width = parseInt(compStyles.width, 10);
+      this.canvas.height = parseInt(compStyles.height, 10);
+      // re-render
+      this.render();
+    });
+    observer.observe(this.canvas.parentElement!);
   }
+
+  #attachGameEvents() {
+    this.game.on("changed", () => {
+      this.sceneView?.update();
+      this.render();
+    });
+  }
+
+  #renderLoop = (time: number) => {
+    const deltaTime = (time - this.#previousTime) / 1000;
+    this.#previousTime = time;
+    this.game.askUpdate(deltaTime);
+    requestAnimationFrame(this.#renderLoop);
+  };
 }

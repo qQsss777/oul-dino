@@ -1,17 +1,17 @@
-import type { IMaterial } from "../material";
+import type { IMaterial } from "../material/material";
 import Asset, { type IAssetConstructor } from "./asset";
 
 interface MaterialAssetProperties extends IAssetConstructor {
-	material: IMaterial;
+  material: IMaterial;
 }
 class MaterialAsset extends Asset {
-	material: IMaterial;
-	constructor(properties: MaterialAssetProperties) {
-		super(properties);
-		this.material = properties.material;
-	}
-	load(): Promise<void> {
-		return Promise.resolve();
-	}
+  material: IMaterial;
+  constructor(properties: MaterialAssetProperties) {
+    super(properties);
+    this.material = properties.material;
+  }
+  load(): Promise<void> {
+    return Promise.resolve();
+  }
 }
 export default MaterialAsset;

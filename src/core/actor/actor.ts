@@ -1,6 +1,6 @@
 import type MaterialAsset from "../asset/materialAsset";
-import type { Geometry } from "../geometry";
-import type { IMaterial } from "../material";
+import type { Geometry } from "../geometry/geometry";
+import type { IMaterial } from "../material/material";
 
 type Movement = "right" | "left" | "jump" | "squat";
 interface IActorConstructor extends MaterialAsset {

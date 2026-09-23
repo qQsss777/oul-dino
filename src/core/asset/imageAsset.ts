@@ -13,6 +13,10 @@ interface IImageProperties {
     x: TFit;
     y: TFit;
   };
+  offset?: {
+    x: number;
+    y: number;
+  };
 }
 
 export interface ImageAssetConstructor extends IAssetConstructor {

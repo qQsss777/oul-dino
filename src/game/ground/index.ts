@@ -34,6 +34,10 @@ const ground = new ImageAsset({
       x: "repeat",
       y: "clamp-to-edge",
     },
+    offset: {
+      x: 0,
+      y: 0,
+    },
   },
 });
 
