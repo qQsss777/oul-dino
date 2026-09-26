@@ -1,17 +1,21 @@
 import type { IMaterial } from "../material/material";
 import Asset, { type IAssetConstructor } from "./asset";
 
-interface MaterialAssetProperties extends IAssetConstructor {
+interface MeshAssetProperties extends IAssetConstructor {
   material: IMaterial;
+  preserveRatio: boolean;
 }
-class MaterialAsset extends Asset {
+class MeshAsset extends Asset {
   material: IMaterial;
-  constructor(properties: MaterialAssetProperties) {
+  preserveRatio: boolean;
+
+  constructor(properties: MeshAssetProperties) {
     super(properties);
     this.material = properties.material;
+    this.preserveRatio = properties.preserveRatio;
   }
   load(): Promise<void> {
     return Promise.resolve();
   }
 }
-export default MaterialAsset;
+export default MeshAsset;

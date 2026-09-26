@@ -23,6 +23,7 @@ export interface ImageAssetConstructor extends IAssetConstructor {
   uvs: Float32Array;
   sourcePath: string;
   properties: IImageProperties;
+  origins?: [number, number][];
 }
 
 interface ImageAssetProperties extends ImageAssetConstructor {
@@ -34,12 +35,14 @@ class ImageAsset extends Asset implements ImageAssetProperties {
   source: ImageBitmap | undefined;
   properties: IImageProperties;
   sourcePath: string;
+  origins: [number, number][];
 
   constructor(properties: ImageAssetConstructor) {
     super(properties);
     this.uvs = properties.uvs;
     this.properties = properties.properties;
     this.sourcePath = properties.sourcePath;
+    this.origins = properties.origins ?? [[0, 0]];
   }
   async load(): Promise<void> {
     const groundTexture = await fetch(this.sourcePath); //await fetch("/assets/ground-128x128.png");

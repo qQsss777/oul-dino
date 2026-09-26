@@ -2,14 +2,16 @@ import type Actor from "../core/actor/actor";
 import type ImageAsset from "../core/asset/imageAsset";
 import Game from "../core/game/game";
 import Scene from "../core/scene/scene";
-import ground from "./ground";
-import sky from "./sky";
+import cloud from "./cloud/cloud";
+import ground from "./ground/ground";
+import sky from "./sky/sky";
+import sun from "./sun/sun";
 
 // game is for interaction with GameApplication and player inputs
 const loadScene = async (): Promise<Scene> => {
-  await Promise.all([ground.load(), sky.load()]);
+  await Promise.all([ground.load(), sky.load(), cloud.load()]);
   return new Scene({
-    assets: [ground, sky],
+    assets: [ground, sun, cloud],
   });
 };
 

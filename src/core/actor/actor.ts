@@ -1,28 +1,12 @@
-import type MaterialAsset from "../asset/materialAsset";
-import type { Geometry } from "../geometry/geometry";
-import type { IMaterial } from "../material/material";
+import MeshAsset from "../asset/meshAsset";
 
 type Movement = "right" | "left" | "jump" | "squat";
-interface IActorConstructor extends MaterialAsset {
-  position: [number, number];
-  label: string;
-}
-interface IActor extends IActorConstructor {
+
+interface IActor {
   move(movement: Movement): void;
 }
 
-export default class Actor implements IActor {
-  geometry: Geometry;
-  material: IMaterial;
-  position: [number, number];
-  label: string;
-
-  constructor(props: IActorConstructor) {
-    this.geometry = props.geometry;
-    this.material = props.material;
-    this.position = props.position;
-    this.label = props.label;
-  }
+export default class Actor extends MeshAsset implements IActor {
   load(): Promise<void> {
     throw new Error("Method not implemented.");
   }

@@ -1,13 +1,18 @@
 import ImageAsset from "../../core/asset/imageAsset";
+import { createRectangle } from "../../core/utils/geometry/createRectangle";
 
-const ground = new ImageAsset({
-  label: "ground",
+const cloud = new ImageAsset({
+  label: "cloud",
   geometry: {
     geometryType: "triangle",
-    value: new Float32Array([
-      -1, -1, -1, -0.3, 1, -0.3, -1, -1, 1, -1, 1, -0.3,
-    ]),
+    value: createRectangle(0.2, 0.2),
   },
+  origins: [
+    [0.2, 0.75],
+    [0.48, 0.8],
+    [0.71, 0.72],
+    [0.92, 0.76],
+  ],
   uvs: new Float32Array([
     0,
     1, // (-1, -1)
@@ -23,22 +28,23 @@ const ground = new ImageAsset({
     1,
     0, // ( 1, -0.3)
   ]),
-  sourcePath: "./assets/ground.png",
+  sourcePath: "./assets/cloud.png",
   properties: {
     interpolation: {
       x: "nearest",
       y: "nearest",
     },
     fit: {
-      mode: "transform",
-      x: "repeat",
+      mode: "stretch",
+      x: "clamp-to-edge",
       y: "clamp-to-edge",
     },
     offset: {
+      //offset pour les UVs de la texture
       x: 0,
       y: 0,
     },
   },
 });
 
-export default ground;
+export default cloud;

@@ -1,17 +1,11 @@
 import type ImageAsset from "../../core/asset/imageAsset";
-import View from "./view";
+import View, { type IBindGroupResources } from "./view";
 
 interface ImageAssetConstructor {
   asset: ImageAsset;
   device: GPUDevice;
   context: GPUCanvasContext;
 }
-
-interface IBindGroupResources {
-  bindGroupLayout: GPUBindGroupLayout;
-  bindGroup: GPUBindGroup;
-}
-
 export default class ImageView extends View {
   texture: GPUTexture;
   context: GPUCanvasContext;
@@ -24,21 +18,28 @@ export default class ImageView extends View {
   buffer: GPUBuffer;
   uvBuffer: GPUBuffer;
   offsetBuffer: GPUBuffer;
+  originsBuffer: GPUBuffer;
   uvs: Float32Array;
   offset: Float32Array;
+  origins: Float32Array;
+  instances: number;
 
   constructor(properties: ImageAssetConstructor) {
     super();
     this.asset = properties.asset;
     this.device = properties.device;
     this.context = properties.context;
+    this.instances = this.asset.origins.length;
     // mise à jour des valeurs "dynamiques"
     this.uvs = this.updateUvs();
     this.offset = this.createOffset();
+    this.origins = new Float32Array(this.asset.origins.flat());
     // création des ressources "statiques"
     this.buffer = this.createBuffer();
     this.uvBuffer = this.createUvsBuffer();
     this.offsetBuffer = this.createOffsetBuffer();
+    this.originsBuffer = this.createOriginsBuffer();
+
     this.texture = this.createTexture();
     this.sampler = this.createSampler();
     this.bindGroupResources = this.createBindGroupResources();
@@ -59,6 +60,10 @@ export default class ImageView extends View {
     );
     this.device.queue.writeBuffer(this.uvBuffer, /*bufferOffset=*/ 0, this.uvs);
     this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
+    this.device.queue.writeBuffer(this.originsBuffer, 0, this.origins);
+
+    console.log(this.asset.origins);
+    console.log(this.origins);
   }
 
   render(pass: GPURenderPassEncoder): void {
@@ -66,20 +71,24 @@ export default class ImageView extends View {
     pass.setBindGroup(0, this.bindGroupResources.bindGroup);
     pass.setVertexBuffer(0, this.buffer);
     pass.setVertexBuffer(1, this.uvBuffer);
-    pass.draw(6);
+    pass.draw(6, this.instances);
   }
 
   //only offset
   update(): void {
     this.offset = this.createOffset();
     this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
+
+    this.origins = new Float32Array(this.asset.origins.flat());
+    this.device.queue.writeBuffer(this.originsBuffer, 0, this.origins);
   }
 
-  // delete buffer
+  // delete buffers
   destroy(): void {
     this.buffer.destroy();
+    this.uvBuffer.destroy();
     this.offsetBuffer.destroy();
-    this.buffer.destroy();
+    this.originsBuffer.destroy();
     this.texture.destroy();
   }
 
@@ -102,6 +111,13 @@ export default class ImageView extends View {
     return this.device.createBuffer({
       size: this.offset.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+  }
+
+  protected createOriginsBuffer(): GPUBuffer {
+    return this.device.createBuffer({
+      size: this.origins.byteLength,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
   }
 
@@ -151,6 +167,13 @@ export default class ImageView extends View {
             type: "filtering",
           },
         },
+        {
+          binding: 3,
+          visibility: GPUShaderStage.VERTEX,
+          buffer: {
+            type: "read-only-storage",
+          },
+        },
       ],
     });
     return {
@@ -170,6 +193,10 @@ export default class ImageView extends View {
             binding: 2,
             resource: this.sampler,
           },
+          {
+            binding: 3,
+            resource: this.originsBuffer,
+          },
         ],
       }),
     };
@@ -179,26 +206,45 @@ export default class ImageView extends View {
     return this.device.createShaderModule({
       label: `${this.asset.label} shader module`,
       code: `
+
         @group(0) @binding(0)
         var<uniform> offset : vec2f;
-        @group(0) @binding(1)
+
+				@group(0) @binding(1)
         var imageTexture : texture_2d<f32>;
+
         @group(0) @binding(2)
         var imageSampler : sampler;
-        struct VertexInput {
-          @location(0) position: vec2f,
+
+        @group(0) @binding(3)
+        var<storage,read> origins : array<vec2f>;
+
+       struct VertexInput {
+          @location(0) vertex: vec2f,
           @location(1) uv: vec2f,
         };
-        struct VertexOutput {
-          @builtin(position) position : vec4f,
+
+      struct VertexOutput {
+          @builtin(position) vertex : vec4f,
           @location(0) uv : vec2f,
         };
-        @vertex
-        fn vertexMain(
-          input: VertexInput)
-          -> VertexOutput {
+
+
+      @vertex
+      fn vertexMain(
+        input: VertexInput,
+        @builtin(vertex_index) vertexIndex: u32,
+        @builtin(instance_index) instanceIndex: u32,
+      ) -> VertexOutput {
           var output: VertexOutput;
-          output.position = vec4f(input.position, 0.0, 1.0);
+            let pos = input.vertex + origins[instanceIndex];
+            let normalizedPosition =
+              pos * 2.0 - 1.0;
+            output.vertex = vec4f(
+              normalizedPosition,
+              0.0,
+              1.0
+            );
           output.uv = input.uv + offset;
           return output;
         }
@@ -236,7 +282,6 @@ export default class ImageView extends View {
               },
             ],
           },
-
           {
             arrayStride: 8,
             attributes: [
@@ -293,12 +338,11 @@ export default class ImageView extends View {
     const image = this.asset.source as ImageBitmap;
 
     // 1. on recupère les min et max de notre emprise
-    const coords = this.asset.geometry.value;
-    let xMin = 1;
-    let xMax = -1;
-    let yMin = 1;
-    let yMax = -1;
-    coords.forEach((coord, index) => {
+    let xMin = Infinity;
+    let xMax = -Infinity;
+    let yMin = Infinity;
+    let yMax = -Infinity;
+    this.asset.geometry.value.forEach((coord, index) => {
       if (index % 2 === 0) {
         xMin = Math.min(xMin, coord);
         xMax = Math.max(xMax, coord);
@@ -307,8 +351,10 @@ export default class ImageView extends View {
         yMax = Math.max(yMax, coord);
       }
     });
-    const ratioShapeX = Math.abs(xMax / xMin);
-    const ratioShapeY = Math.abs(yMax / yMin);
+
+    // on récupère les côtes
+    const shapeXLength = xMax - xMin;
+    const shapeYLength = yMax - yMin;
 
     // 2. on récupère la taille du canvas
     const canvasHeight = canvas.height;
@@ -319,8 +365,8 @@ export default class ImageView extends View {
     const imageWidth = image.width;
 
     // 4. on calcule les ratio
-    const ratioX = (canvasWidth * ratioShapeX) / imageWidth;
-    const ratioY = (canvasHeight * ratioShapeY) / imageHeight;
+    const ratioX = (canvasWidth * shapeXLength) / imageWidth;
+    const ratioY = (canvasHeight * shapeYLength) / imageHeight;
 
     return this.asset.uvs.map((uv, index) => {
       if (index % 2 === 0) {
