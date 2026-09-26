@@ -24,13 +24,28 @@ const generateGame = async (): Promise<Game> => {
   });
 
   game.on("udapte-asked", () => {
+    const backgroundSpeed = 0.001;
+
+    // ground
     const newImageGroundProperties = { ...ground.properties };
-    newImageGroundProperties.offset!.x += 0.001;
+    newImageGroundProperties.offset!.x += backgroundSpeed;
     game.updateAsset<ImageAsset, "properties">(
       ground,
       "properties",
       newImageGroundProperties,
     );
+
+    // clouds
+    const newOrigins = cloud.origins.map((origin) => {
+      if (origin[0] < -0.25) {
+        origin[0] = 1;
+        origin[1] = 0.7 + (0.93 - 0.7) * Math.random();
+      } else {
+        origin[0] -= 0.0001;
+      }
+      return origin;
+    });
+    game.updateAsset<ImageAsset, "origins">(cloud, "origins", newOrigins);
   });
   return game;
 };

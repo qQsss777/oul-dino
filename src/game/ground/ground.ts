@@ -5,7 +5,7 @@ const ground = new ImageAsset({
   label: "ground",
   geometry: {
     geometryType: "triangle",
-    value: createRectangle(1, 0.3),
+    value: createRectangle(1, 0.2),
   },
   origins: [[0, 0]],
   uvs: new Float32Array([

@@ -12,6 +12,7 @@ const cloud = new ImageAsset({
     [0.48, 0.8],
     [0.71, 0.72],
     [0.92, 0.76],
+    [1.15, 0.82],
   ],
   uvs: new Float32Array([
     0,

@@ -61,9 +61,6 @@ export default class ImageView extends View {
     this.device.queue.writeBuffer(this.uvBuffer, /*bufferOffset=*/ 0, this.uvs);
     this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
     this.device.queue.writeBuffer(this.originsBuffer, 0, this.origins);
-
-    console.log(this.asset.origins);
-    console.log(this.origins);
   }
 
   render(pass: GPURenderPassEncoder): void {
