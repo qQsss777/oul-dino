@@ -1,5 +1,4 @@
 import GameApplication from "./application/application";
-import { createCircle } from "./core/utils/geometry";
 import { generateGame } from "./game";
 import "./style.css";
 

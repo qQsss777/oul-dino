@@ -4,20 +4,20 @@ import { createCircle } from "../../core/utils/geometry";
 
 const circle = createCircle(0.12, 50);
 const geometries: Geometry = {
-  geometryType: "triangle",
-  value: new Float32Array(circle),
+	geometryType: "triangle",
+	value: new Float32Array(circle),
 };
 
-const sky = new MeshAsset({
-  label: "sun",
-  geometry: geometries,
-  material: { color: [0.9, 0.82, 0.04, 1] },
-  preserveRatio: true,
-  transform: {
-    scale: [1, 1],
-    position: [-0.85, 0.8],
-    rotation: 0,
-  },
+const sun = new MeshAsset({
+	label: "sun",
+	geometry: geometries,
+	material: { color: [0.9, 0.82, 0.04, 1] },
+	preserveRatio: true,
+	transform: {
+		scale: [1, 1],
+		translate: [-0.85, 0.8],
+		rotation: 0,
+	},
 });
 
-export default sky;
+export default sun;

@@ -59,13 +59,13 @@ export default class SceneView implements ISceneView {
 				},
 			],
 		};
-		const encoder = this.device!.createCommandEncoder({ label: "encoder" });
+		const encoder = this.device.createCommandEncoder({ label: "encoder" });
 		const pass = encoder.beginRenderPass(renderPassDescriptor);
 		this.views.forEach((v) => {
 			v.render(pass);
 		});
 		pass.end();
-		this.device!.queue.submit([encoder.finish()]);
+		this.device.queue.submit([encoder.finish()]);
 	}
 
 	/**

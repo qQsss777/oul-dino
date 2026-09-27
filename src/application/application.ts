@@ -83,7 +83,7 @@ export default class GameApplication implements GameApplicationProperties {
 	}
 
 	#attachGameEvents() {
-		this.game.on("changed", () => {
+		this.game.on("updated", () => {
 			this.sceneView?.update();
 		});
 	}

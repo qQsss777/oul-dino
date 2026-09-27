@@ -1,16 +1,40 @@
-import MeshAsset from "../asset/meshAsset";
+import MeshAsset, { type IMeshAssetProperties } from "../asset/meshAsset";
+import type Input from "../input/input";
+import { updating } from "../utils/decorator/UpdatingDecorator";
 
-type Movement = "right" | "left" | "jump" | "squat";
+interface IActorConstructor extends IMeshAssetProperties {
+	inputs?: Input<unknown>[];
+	updating: boolean;
+}
 
-interface IActor {
-  move(movement: Movement): void;
+interface IActor extends IActorConstructor {
+	addInput(input: Input<unknown>): void;
+	move(direction: "left" | "right", speed: number): void;
+	jump(speed: number): void;
 }
 
 export default class Actor extends MeshAsset implements IActor {
-  load(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  move(_movement: Movement): void {
-    throw new Error("Method not implemented.");
-  }
+	inputs: Input<unknown>[];
+	updating: boolean = false;
+
+	constructor(properties: IActorConstructor) {
+		super(properties);
+		this.inputs = properties.inputs ?? [];
+	}
+	load(): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+	addInput(input: Input<unknown>): void {
+		input.assetInstance = this;
+		this.inputs.push(input);
+	}
+
+	@updating()
+	move(direction: "left" | "right", speed: number): void {
+		throw new Error("Method not implemented.");
+	}
+	@updating()
+	jump(speed: number) {
+		throw new Error("Method not implemented.");
+	}
 }
