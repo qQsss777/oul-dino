@@ -1,3 +1,3 @@
-import AssetView from "./MeshView";
+import MeshView from "./meshView";
 
-export default class ActorView extends AssetView {}
+export default class ActorView extends MeshView {}
