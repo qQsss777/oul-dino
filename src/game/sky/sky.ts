@@ -1,3 +1,4 @@
+import Actor from "../../core/actor/actor";
 import MeshAsset from "../../core/asset/meshAsset";
 import type { Geometry } from "../../core/geometry/geometry";
 
@@ -13,4 +14,9 @@ const sky = new MeshAsset({
   preserveRatio: true,
 });
 
-export default sky;
+const skyActor = new Actor({
+  asset: sky,
+  label: "sky actor",
+});
+
+export default skyActor;

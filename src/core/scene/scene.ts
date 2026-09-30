@@ -1,35 +1,35 @@
-import type Asset from "../asset/asset";
+import type Actor from "../actor/actor";
 
 interface ISceneConstructor {
-	assets: Asset[];
+  actors: Actor[];
+  backgroundColor: number[];
 }
 
 interface SceneProperties extends ISceneConstructor {
-	findAssetByLabel: (label: string) => Asset | undefined;
-	findAssetByTags: (tag: string) => Asset[];
-	findAssetByRole: (role: string) => Asset[];
-	removeAllAssets: () => void;
+  findactorByLabel: (label: string) => Actor | undefined;
+  findactorByTags: (tag: string) => Actor[];
+  findactorByRole: (role: string) => Actor[];
+  removeAllActors: () => void;
 }
 export default class Scene implements SceneProperties {
-	assets: Asset[];
+  actors: Actor[];
+  backgroundColor: number[];
 
-	constructor(properties: ISceneConstructor) {
-		this.assets = properties.assets;
-	}
+  constructor(properties: ISceneConstructor) {
+    this.actors = properties.actors;
+    this.backgroundColor = properties.backgroundColor;
+  }
 
-	findAssetByLabel(label: string): Asset | undefined {
-		return this.assets.find((asset) => asset.label === label);
-	}
-	findAssetByTags(tag: string): Asset[] {
-		return this.assets.filter((asset) => asset.tags.includes(tag));
-	}
-	findAssetByRole(role: string): Asset[] {
-		return this.assets.filter((asset) => asset.roles.includes(role));
-	}
-	updateAsset<L, K extends keyof L>(asset: L, key: K, value: L[K]): void {
-		asset[key] = value;
-	}
-	removeAllAssets(): void {
-		this.assets = [];
-	}
+  findactorByLabel(label: string): Actor | undefined {
+    return this.actors.find((actor) => actor.label === label);
+  }
+  findactorByTags(tag: string): Actor[] {
+    return this.actors.filter((actor) => actor.tags.includes(tag));
+  }
+  findactorByRole(role: string): Actor[] {
+    return this.actors.filter((actor) => actor.roles.includes(role));
+  }
+  removeAllActors(): void {
+    this.actors = [];
+  }
 }

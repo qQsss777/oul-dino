@@ -1,40 +1,55 @@
-import MeshAsset, { type IMeshAssetProperties } from "../asset/meshAsset";
-import type Input from "../input/input";
-import { updating } from "../utils/decorator/UpdatingDecorator";
+import type Asset from "../asset/asset";
+import type { IRenderable } from "../scene/renderable";
 
-interface IActorConstructor extends IMeshAssetProperties {
-	inputs?: Input<unknown>[];
-	updating: boolean;
+export interface IActorConstructor {
+  asset: Asset;
+  label: string;
+  roles?: string[];
+  tags?: string[];
 }
 
-interface IActor extends IActorConstructor {
-	addInput(input: Input<unknown>): void;
-	move(direction: "left" | "right", speed: number): void;
-	jump(speed: number): void;
+export interface IActorProperties extends IActorConstructor {
+  /**
+   * load asset component
+   */
+  load(): Promise<void>;
+  /**
+   * Update asset properties
+   * @param key key of asset
+   * @param value new value
+   */
+  updateAsset(key: string, value: unknown): void;
 }
 
-export default class Actor extends MeshAsset implements IActor {
-	inputs: Input<unknown>[];
-	updating: boolean = false;
+/**
+ * Embed asset and manage it
+ */
+class Actor implements IRenderable, IActorProperties {
+  asset: Asset;
+  label: string;
+  roles: string[];
+  tags: string[];
 
-	constructor(properties: IActorConstructor) {
-		super(properties);
-		this.inputs = properties.inputs ?? [];
-	}
-	load(): Promise<void> {
-		throw new Error("Method not implemented.");
-	}
-	addInput(input: Input<unknown>): void {
-		input.assetInstance = this;
-		this.inputs.push(input);
-	}
+  constructor(properties: IActorConstructor) {
+    this.asset = properties.asset;
+    this.label = properties.label;
+    this.tags = properties.tags ?? [];
+    this.roles = properties.roles ?? [];
+  }
+  async load(): Promise<void> {
+    await this.asset.load();
+  }
 
-	@updating()
-	move(direction: "left" | "right", speed: number): void {
-		throw new Error("Method not implemented.");
-	}
-	@updating()
-	jump(speed: number) {
-		throw new Error("Method not implemented.");
-	}
+  getAsset(): Asset {
+    return this.asset;
+  }
+
+  updateAsset(key: string, value: unknown): void {
+    if (key in this.asset) {
+      const k = key as keyof typeof this.asset;
+      this.asset[k] = value as never;
+    }
+  }
 }
+
+export default Actor;

@@ -1,16 +1,13 @@
-import Actor from "../../core/actor/actor";
-import type Asset from "../../core/asset/asset";
+import type Actor from "../../core/actor/actor";
 import ImageAsset from "../../core/asset/imageAsset";
-import type MeshAsset from "../../core/asset/meshAsset";
-import ActorView from "./actorView";
-import ImageView from "./imageView";
-import MeshView from "./meshView";
+import ActorImageView from "./actorImageView";
+import ActorMeshView from "./actorMeshView";
 import type View from "./view";
 
 interface IViewsFactoryProps {
   device: GPUDevice;
   context: GPUCanvasContext;
-  createView: (asset: MeshAsset) => View;
+  createView: (actor: Actor) => View;
 }
 export default class ViewsFactory implements IViewsFactoryProps {
   device: GPUDevice;
@@ -21,25 +18,16 @@ export default class ViewsFactory implements IViewsFactoryProps {
     this.context = context;
   }
 
-  createView(asset: Asset): View {
-    if (asset instanceof Actor) {
-      return new ActorView({
-        asset,
-        device: this.device,
-        context: this.context,
-      });
-    }
-    if (asset instanceof ImageAsset) {
-      const imageAsset = asset as ImageAsset;
-      return new ImageView({
-        asset: imageAsset,
+  createView(actor: Actor): View {
+    if (actor.asset instanceof ImageAsset) {
+      return new ActorImageView({
+        actor,
         device: this.device,
         context: this.context,
       });
     } else {
-      const MeshAsset = asset as MeshAsset;
-      return new MeshView({
-        asset: MeshAsset,
+      return new ActorMeshView({
+        actor,
         device: this.device,
         context: this.context,
       });

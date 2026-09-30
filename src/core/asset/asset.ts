@@ -3,38 +3,32 @@ import type Input from "../input/input";
 import type { ITransform } from "../transform/transform";
 
 export interface IAssetConstructor {
-	label: string;
-	roles?: string[];
-	tags?: string[];
-	geometry: Geometry;
-	transform?: ITransform;
-	inputs?: Input<unknown>[];
+  label: string;
+  geometry: Geometry;
+  transform?: ITransform;
+  inputs?: Input<unknown>[];
 }
 
 interface IAssetProperties extends IAssetConstructor {
-	load: () => Promise<void>;
+  load: () => Promise<void>;
 }
 
 abstract class Asset implements IAssetProperties {
-	label: string;
-	geometry: Geometry;
-	transform: ITransform;
-	roles: string[];
-	tags: string[];
+  label: string;
+  geometry: Geometry;
+  transform: ITransform;
 
-	constructor(properties: IAssetConstructor) {
-		this.label = properties.label;
-		this.geometry = properties.geometry;
-		this.transform = properties.transform ?? {
-			translate: [0, 0],
-			rotation: 1,
-			scale: [1, 1],
-		};
-		this.tags = properties.tags ?? [];
-		this.roles = properties.roles ?? [];
-	}
-	inputs?: Input<unknown>[] | undefined;
-	abstract load(): Promise<void>;
+  constructor(properties: IAssetConstructor) {
+    this.label = properties.label;
+    this.geometry = properties.geometry;
+    this.transform = properties.transform ?? {
+      translate: [0, 0],
+      rotation: 1,
+      scale: [1, 1],
+    };
+  }
+  inputs?: Input<unknown>[] | undefined;
+  abstract load(): Promise<void>;
 }
 
 export default Asset;
