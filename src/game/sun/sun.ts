@@ -12,11 +12,12 @@ const geometries: Geometry = {
 const sun = new MeshAsset({
   label: "sun",
   geometry: geometries,
+  locations: [[1, 1]],
   material: { color: [0.9, 0.82, 0.04, 1] },
   preserveRatio: true,
   transform: {
     scale: [1, 1],
-    translate: [-0.85, 0.8],
+    translate: [0, 0],
     rotation: 0,
   },
 });

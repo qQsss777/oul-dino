@@ -23,6 +23,8 @@ export default class GameApplication implements GameApplicationProperties {
   presentationFormat: GPUTextureFormat | null = null;
   sceneView: SceneView | null = null;
   #previousTime: number = 0;
+  #abortController = new AbortController();
+
   constructor(properties: GameApplicationConstructor) {
     this.game = properties.game;
     this.canvas = properties.canvas;
@@ -81,13 +83,30 @@ export default class GameApplication implements GameApplicationProperties {
   #attachGameEvents() {
     this.game.on("updated", () => {
       this.sceneView?.update();
+      if (this.game.hasSceneUpdate()) {
+        requestAnimationFrame(() => {
+          this.game.updateScene();
+        });
+      }
     });
+
+    document.addEventListener(
+      "keypress",
+      (event) => {
+        if (event.code === "Space") {
+          this.game.notifyInput("jump");
+        }
+      },
+      {
+        signal: this.#abortController.signal,
+      },
+    );
   }
 
   #renderLoop = (time: number) => {
     const deltaTime = (time - this.#previousTime) / 1000;
     this.#previousTime = time;
-    this.game.askUpdate(deltaTime);
+    this.game.requestUpdate(deltaTime);
     requestAnimationFrame(this.#renderLoop);
   };
 }

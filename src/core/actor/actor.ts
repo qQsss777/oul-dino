@@ -29,6 +29,7 @@ class Actor implements IRenderable, IActorProperties {
   label: string;
   roles: string[];
   tags: string[];
+  #updating = false;
 
   constructor(properties: IActorConstructor) {
     this.asset = properties.asset;
@@ -49,6 +50,10 @@ class Actor implements IRenderable, IActorProperties {
       const k = key as keyof typeof this.asset;
       this.asset[k] = value as never;
     }
+  }
+
+  isUpdating(): boolean {
+    return this.#updating;
   }
 }
 

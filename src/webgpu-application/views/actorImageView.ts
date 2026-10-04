@@ -7,30 +7,23 @@ export default class ActorImageView extends View {
   bindGroupResources: IBindGroupResources;
   shaderModule: GPUShaderModule;
   pipeline: GPURenderPipeline;
-  buffer: GPUBuffer;
   uvBuffer: GPUBuffer;
   offsetBuffer: GPUBuffer;
-  originsBuffer: GPUBuffer;
   uvs: Float32Array;
   offset: Float32Array;
-  origins: Float32Array;
-  instances: number;
   asset: ImageAsset;
 
   constructor(properties: IViewConstructor) {
     super(properties);
     this.asset = this.actor.getAsset() as ImageAsset;
-    this.instances = this.asset.origins.length;
+
     // mise à jour des valeurs "dynamiques"
     this.uvs = this.updateUvs();
     this.offset = this.createOffset();
-    this.origins = new Float32Array(this.asset.origins.flat());
-    // création des ressources "statiques"
-    this.buffer = this.createBuffer();
+
+    // création des ressources "statiques" propre au type d'instance
     this.uvBuffer = this.createUvsBuffer();
     this.offsetBuffer = this.createOffsetBuffer();
-    this.originsBuffer = this.createOriginsBuffer();
-
     this.texture = this.createTexture();
     this.sampler = this.createSampler();
     this.bindGroupResources = this.createBindGroupResources();
@@ -45,19 +38,19 @@ export default class ActorImageView extends View {
       { width: sourceData.width, height: sourceData.height },
     );
     this.device.queue.writeBuffer(
-      this.buffer,
+      this.geometryBuffer,
       /*bufferOffset=*/ 0,
       this.asset.geometry.value,
     );
     this.device.queue.writeBuffer(this.uvBuffer, /*bufferOffset=*/ 0, this.uvs);
     this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
-    this.device.queue.writeBuffer(this.originsBuffer, 0, this.origins);
+    this.device.queue.writeBuffer(this.locationsBuffer, 0, this.locations);
   }
 
   render(pass: GPURenderPassEncoder): void {
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.bindGroupResources.bindGroup);
-    pass.setVertexBuffer(0, this.buffer);
+    pass.setVertexBuffer(0, this.geometryBuffer);
     pass.setVertexBuffer(1, this.uvBuffer);
     pass.draw(6, this.instances);
   }
@@ -66,26 +59,17 @@ export default class ActorImageView extends View {
   update(): void {
     this.offset = this.createOffset();
     this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
-
-    this.origins = new Float32Array(this.asset.origins.flat());
-    this.device.queue.writeBuffer(this.originsBuffer, 0, this.origins);
+    this.locations = new Float32Array(this.asset.locations.flat());
+    this.device.queue.writeBuffer(this.locationsBuffer, 0, this.locations);
   }
 
   // delete buffers
   destroy(): void {
-    this.buffer.destroy();
+    this.geometryBuffer.destroy();
     this.uvBuffer.destroy();
     this.offsetBuffer.destroy();
-    this.originsBuffer.destroy();
+    this.locationsBuffer.destroy();
     this.texture.destroy();
-  }
-
-  protected createBuffer(): GPUBuffer {
-    return this.device.createBuffer({
-      label: `${this.asset.label} vertices`,
-      size: this.asset.geometry.value.byteLength,
-      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-    });
   }
 
   protected createUvsBuffer(): GPUBuffer {
@@ -102,9 +86,9 @@ export default class ActorImageView extends View {
     });
   }
 
-  protected createOriginsBuffer(): GPUBuffer {
+  protected createlocationsBuffer(): GPUBuffer {
     return this.device.createBuffer({
-      size: this.origins.byteLength,
+      size: this.locations.byteLength,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
   }
@@ -183,7 +167,7 @@ export default class ActorImageView extends View {
           },
           {
             binding: 3,
-            resource: this.originsBuffer,
+            resource: this.locationsBuffer,
           },
         ],
       }),
@@ -205,7 +189,7 @@ export default class ActorImageView extends View {
         var imageSampler : sampler;
 
         @group(0) @binding(3)
-        var<storage,read> origins : array<vec2f>;
+        var<storage,read> locations : array<vec2f>;
 
        struct VertexInput {
           @location(0) vertex: vec2f,
@@ -221,11 +205,10 @@ export default class ActorImageView extends View {
       @vertex
       fn vertexMain(
         input: VertexInput,
-        @builtin(vertex_index) vertexIndex: u32,
         @builtin(instance_index) instanceIndex: u32,
       ) -> VertexOutput {
           var output: VertexOutput;
-            let pos = input.vertex + origins[instanceIndex];
+            let pos = input.vertex + locations[instanceIndex];
             let normalizedPosition =
               pos * 2.0 - 1.0;
             output.vertex = vec4f(

@@ -1,32 +1,64 @@
+import type { InputName } from "../input/input";
+import type { IInputNotification } from "../scene/scene";
 import type Scene from "../scene/scene";
 import { emitEvent } from "../utils/decorator/EventDecorator";
 import EventEmitter from "../utils/event/EventEmitter";
 
 interface IGameConstructor {
-	scene: Scene;
+  scene: Scene;
+  levelManager: any;
+  sessionManager: any;
 }
 
 interface IGameProperties extends IGameConstructor {
-	askUpdate: (deltaTime: number) => void;
-	updateLevel: () => void;
+  requestUpdate: (deltaTime: number) => void;
+  updateScene: () => void;
+  updateLevel: () => void;
+  hasSceneUpdate: () => boolean;
+  notifyInput: (inputName: InputName) => void;
 }
 
 export default class Game extends EventEmitter implements IGameProperties {
-	scene: Scene;
-	lastTimeUpdate = 0;
+  scene: Scene;
+  lastTimeUpdate = 0;
+  levelManager: any;
+  sessionManager: any;
 
-	constructor(properties: IGameConstructor) {
-		super();
-		this.scene = properties.scene;
-	}
+  constructor(properties: IGameConstructor) {
+    super();
+    this.scene = properties.scene;
+  }
 
-	@emitEvent("udapte-asked")
-	askUpdate(deltaTime: number) {
-		this.lastTimeUpdate = this.lastTimeUpdate + deltaTime;
-	}
+  @emitEvent("update-request")
+  requestUpdate(deltaTime: number) {
+    this.lastTimeUpdate = this.lastTimeUpdate + deltaTime;
+  }
 
-	@emitEvent("changed")
-	updateLevel() {
-		console.log("ooo");
-	}
+  @emitEvent("level-changed")
+  updateLevel() {
+    console.log("ooo");
+  }
+
+  notifyInput(inputName: InputName) {
+    const inputPayload: IInputNotification = {
+      name: inputName,
+      data: {
+        distance: 0.5,
+        speed: 0.01 / 90,
+      },
+    };
+    // prepare new data
+    this.scene.notifyInputs(inputPayload);
+    // update scene
+    this.updateScene();
+  }
+
+  updateScene(): void {
+    this.scene.update();
+    this.emit("updated");
+  }
+
+  hasSceneUpdate(): boolean {
+    return this.scene.isUpdating();
+  }
 }

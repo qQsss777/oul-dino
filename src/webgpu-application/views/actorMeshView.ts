@@ -3,7 +3,6 @@ import * as mat3 from "../../core/utils/math/matrix";
 import View, { type IBindGroupResources, type IViewConstructor } from "./view";
 
 export default class ActorMeshView extends View {
-  buffer: GPUBuffer;
   shaderModule: GPUShaderModule;
   asset: MeshAsset;
   pipeline: GPURenderPipeline;
@@ -18,14 +17,13 @@ export default class ActorMeshView extends View {
     this.asset = this.actor.getAsset() as MeshAsset;
     this.materialData = this.createMaterialData();
     this.matrix = this.createMatrix();
-    this.buffer = this.createBuffer();
     this.materialBuffer = this.createMaterialBuffer();
     this.matrixBuffer = this.createMatrixBuffer();
     this.bindGroupResources = this.createBindGroupResources();
     this.shaderModule = this.createShaderModule();
     this.pipeline = this.createPipeline();
     this.device.queue.writeBuffer(
-      this.buffer,
+      this.geometryBuffer,
       /*bufferOffset=*/ 0,
       this.asset.geometry.value,
     );
@@ -36,8 +34,8 @@ export default class ActorMeshView extends View {
   render(pass: GPURenderPassEncoder): void {
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.bindGroupResources.bindGroup);
-    pass.setVertexBuffer(0, this.buffer);
-    pass.draw(this.asset.geometry.value.length / 2);
+    pass.setVertexBuffer(0, this.geometryBuffer);
+    pass.draw(this.asset.geometry.value.length / 2, this.instances);
   }
 
   // update
@@ -52,7 +50,9 @@ export default class ActorMeshView extends View {
   }
 
   destroy(): void {
-    this.buffer.destroy();
+    this.geometryBuffer?.destroy();
+    this.materialBuffer.destroy();
+    this.matrixBuffer.destroy();
   }
 
   /**
@@ -71,9 +71,7 @@ export default class ActorMeshView extends View {
 
   protected createMatrix(): Float32Array {
     const matrixData = new Float32Array(48);
-
     const { translate, rotation, scale } = this.asset.transform;
-
     const translationMatrix = mat3.translation(translate);
     const rotationMatrix = mat3.rotation(rotation);
     const scaleMatrix = mat3.scaling(scale);
@@ -101,7 +99,7 @@ export default class ActorMeshView extends View {
     return canvas.height / canvas.width;
   }
 
-  protected createBuffer(): GPUBuffer {
+  protected createGeometryBuffer(): GPUBuffer {
     return this.device.createBuffer({
       label: `${this.asset.label} vertices`,
       size: this.asset.geometry.value.byteLength,
@@ -142,6 +140,13 @@ export default class ActorMeshView extends View {
             type: "uniform",
           },
         },
+        {
+          binding: 2,
+          visibility: GPUShaderStage.VERTEX,
+          buffer: {
+            type: "read-only-storage",
+          },
+        },
       ],
     });
     return {
@@ -157,10 +162,15 @@ export default class ActorMeshView extends View {
             binding: 1,
             resource: this.matrixBuffer,
           },
+          {
+            binding: 2,
+            resource: this.locationsBuffer,
+          },
         ],
       }),
     };
   }
+
   protected createShaderModule(): GPUShaderModule {
     return this.device.createShaderModule({
       label: `${this.asset.label} shader module`,
@@ -176,13 +186,18 @@ export default class ActorMeshView extends View {
 			@group(0) @binding(1)
       var<uniform> matrix: mat3x3f;
 
-      @vertex
-      fn vertexMain(@location(0) pos: vec2f) ->
-        @builtin(position) vec4f {
-        let position = (matrix * vec3f(pos, 1)).xy;
-        return vec4f(position, 0, 1);
-      }
+			@group(0) @binding(2)
+      var<storage,read> locations : array<vec2f>;
 
+      @vertex
+      fn vertexMain(
+      @location(0) pos: vec2f,
+      @builtin(instance_index) instanceIndex: u32) ->
+        @builtin(position) vec4f {
+        let position = pos + locations[instanceIndex];
+        let positionComputed = (matrix * vec3f(position, 1)).xy;
+        return vec4f(positionComputed, 0, 1);
+      }
       @fragment
       fn fragmentMain() -> @location(0) vec4f {
         return material.color;

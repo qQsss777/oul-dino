@@ -1,4 +1,4 @@
-import GameApplication from "./application/application";
+import GameApplication from "./webgpu-application/application";
 import { generateGame } from "./game";
 import "./style.css";
 

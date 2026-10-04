@@ -1,30 +1,51 @@
+import type { InputName } from "../input/input";
 import type Input from "../input/input";
 import Actor, { type IActorConstructor } from "./actor";
 
+interface INotifyInput {
+  name: InputName;
+  data?: unknown;
+}
 interface IMoveableActorConstructor extends IActorConstructor {
   inputs?: Input<unknown>[];
 }
 
 interface IActorProperties extends IMoveableActorConstructor {
-  addInput(input: Input<unknown>): void;
+  registerInput(input: Input<unknown>): void;
+  notifyInput(payload: INotifyInput): void;
+  executeInputs(): void;
   isUpdating(): boolean;
 }
 
 export default class MoveableActor extends Actor implements IActorProperties {
   inputs: Input<unknown>[];
-  #updating: boolean = false;
 
   constructor(properties: IMoveableActorConstructor) {
     super(properties);
     this.inputs = properties.inputs ?? [];
   }
 
-  addInput(input: Input<unknown>): void {
-    input.assetInstance = this;
+  registerInput(input: Input<unknown>): void {
+    input.setInstance(this);
     this.inputs.push(input);
   }
 
+  notifyInput(payload: INotifyInput): void {
+    const input = this.inputs.find(
+      (input) => input.name === payload.name && input.state === "free",
+    );
+    if (input) {
+      input.compute(payload.data);
+    }
+  }
+
+  executeInputs(): void {
+    this.inputs.forEach((input) => {
+      if (input.state === "busy") input.execute();
+    });
+  }
+
   isUpdating(): boolean {
-    return this.#updating;
+    return !!this.inputs.find((input) => input.state === "busy");
   }
 }

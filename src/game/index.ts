@@ -6,9 +6,11 @@ const generateGame = async (): Promise<Game> => {
   const scene = await loadScene();
   const game = new Game({
     scene: scene,
+    levelManager: null,
+    sessionManager: null,
   });
 
-  game.on("udapte-asked", () => {
+  game.on("update-request", () => {
     const groundActor = game.scene.findactorByLabel("ground");
     if (groundActor) {
       const newImageGroundProperties = {
@@ -17,11 +19,10 @@ const generateGame = async (): Promise<Game> => {
       newImageGroundProperties.offset.x += 0.001;
       groundActor.updateAsset("properties", newImageGroundProperties);
     }
-
     const cloudActor = game.scene.findactorByLabel("cloud");
     if (cloudActor) {
       // clouds
-      const newOrigins = (cloudActor.asset as ImageAsset).origins.map(
+      const newlocations = (cloudActor.asset as ImageAsset).locations.map(
         (origin) => {
           if (origin[0] < -0.25) {
             origin[0] = 1;
@@ -32,7 +33,7 @@ const generateGame = async (): Promise<Game> => {
           return origin;
         },
       );
-      cloudActor.updateAsset("origins", newOrigins);
+      cloudActor.updateAsset("locations", newlocations);
     }
     game.emit("updated");
   });

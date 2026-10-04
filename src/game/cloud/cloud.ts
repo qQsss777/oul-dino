@@ -8,7 +8,7 @@ const cloud = new ImageAsset({
     geometryType: "triangle",
     value: createRectangle(0.2, 0.2),
   },
-  origins: [
+  locations: [
     [0.2, 0.75],
     [0.48, 0.8],
     [0.71, 0.72],
