@@ -1,8 +1,11 @@
 import type MeshAsset from "../../core/asset/meshAsset";
 import * as mat3 from "../../core/utils/math/matrix";
-import View, { type IBindGroupResources, type IViewConstructor } from "./view";
+import BaseView, {
+  type IBindGroupResources,
+  type IViewConstructor,
+} from "./webGPUBaseView";
 
-export default class ActorMeshView extends View {
+export default class WebGPUActorMeshView extends BaseView {
   shaderModule: GPUShaderModule;
   asset: MeshAsset;
   pipeline: GPURenderPipeline;
@@ -31,7 +34,7 @@ export default class ActorMeshView extends View {
     this.device.queue.writeBuffer(this.matrixBuffer, 0, this.matrix);
   }
 
-  render(pass: GPURenderPassEncoder): void {
+  override render(pass: GPURenderPassEncoder): void {
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.bindGroupResources.bindGroup);
     pass.setVertexBuffer(0, this.geometryBuffer);

@@ -1,20 +1,20 @@
 import type Game from "../core/game/game";
-import SceneView from "./views/sceneView";
+import SceneView from "./webgpu-views/webGPUSceneView";
 
-interface GameApplicationConstructor {
+interface WebGPUGameApplicationConstructor {
   game: Game;
   canvas: HTMLCanvasElement;
 }
 
-interface GameApplicationProperties extends GameApplicationConstructor {
-  render: () => void;
-  init: () => Promise<void>;
+interface GameApplicationProperties extends WebGPUGameApplicationConstructor {
+  render(): void;
+  init(): Promise<void>;
   adapter: GPUAdapter | null;
   device: GPUDevice | null;
   context: GPUCanvasContext | null;
 }
 
-export default class GameApplication implements GameApplicationProperties {
+export default class webGPUApplication implements GameApplicationProperties {
   game: Game;
   canvas: HTMLCanvasElement;
   adapter: GPUAdapter | null = null;
@@ -25,7 +25,7 @@ export default class GameApplication implements GameApplicationProperties {
   #previousTime: number = 0;
   #abortController = new AbortController();
 
-  constructor(properties: GameApplicationConstructor) {
+  constructor(properties: WebGPUGameApplicationConstructor) {
     this.game = properties.game;
     this.canvas = properties.canvas;
   }

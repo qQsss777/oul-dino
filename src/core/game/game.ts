@@ -11,11 +11,11 @@ interface IGameConstructor {
 }
 
 interface IGameProperties extends IGameConstructor {
-  requestUpdate: (deltaTime: number) => void;
-  updateScene: () => void;
-  updateLevel: () => void;
-  hasSceneUpdate: () => boolean;
-  notifyInput: (inputName: InputName) => void;
+  requestUpdate(deltaTime: number): void;
+  updateScene(): void;
+  updateLevel(): void;
+  hasSceneUpdate(): boolean;
+  notifyInput(inputName: InputName): void;
 }
 
 export default class Game extends EventEmitter implements IGameProperties {

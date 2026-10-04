@@ -15,7 +15,7 @@
 		"moduleDetection": "force",
 		"noEmit": true,
 		"experimentalDecorators": true,
-
+		"noImplicitOverride": false,
 		/* Linting */
 		"noUnusedLocals": true,
 		"noUnusedParameters": false,

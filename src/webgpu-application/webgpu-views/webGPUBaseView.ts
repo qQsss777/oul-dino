@@ -1,5 +1,6 @@
 import type Actor from "../../core/actor/actor";
 import type Asset from "../../core/asset/asset";
+import ActorView from "../../core/views/actorView";
 
 export interface IBindGroupResources {
   bindGroupLayout: GPUBindGroupLayout;
@@ -20,15 +21,14 @@ interface IViewProperties extends IViewConstructor {
   locationsBuffer: GPUBuffer | undefined;
   pipeline: GPURenderPipeline | undefined;
   shaderModule: GPUShaderModule | undefined;
-  render: (pass: GPURenderPassEncoder) => void;
-  update(): void;
-  destroy(): void;
 }
 
-export default abstract class View implements IViewProperties {
+export default abstract class WebGPUBaseView
+  extends ActorView
+  implements IViewProperties
+{
   pipeline: GPURenderPipeline | undefined;
   shaderModule: GPUShaderModule | undefined;
-  actor: Actor;
   device: GPUDevice;
   context: GPUCanvasContext;
   asset: Asset;
@@ -39,8 +39,8 @@ export default abstract class View implements IViewProperties {
   instances: number;
 
   constructor(properties: IViewConstructor) {
+    super(properties);
     this.device = properties.device;
-    this.actor = properties.actor;
     this.context = properties.context;
     this.asset = this.actor.getAsset();
     this.instances = this.asset.locations.length;
@@ -49,9 +49,6 @@ export default abstract class View implements IViewProperties {
     this.locationsBuffer = this.#createlocationsBuffer();
   }
 
-  abstract render(pass: GPURenderPassEncoder): void;
-  abstract update(): void;
-  abstract destroy(): void;
   protected abstract createShaderModule(): GPUShaderModule;
   protected abstract createPipeline(): GPURenderPipeline;
 

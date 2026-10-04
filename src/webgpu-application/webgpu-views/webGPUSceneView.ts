@@ -1,35 +1,35 @@
 import type Scene from "../../core/scene/scene";
-import type View from "./view";
-import ViewsFactory from "./viewsFactory";
+import SceneView from "../../core/views/sceneView";
+import type View from "./webGPUBaseView";
+import ViewsFactory from "./webGPUViewsFactory";
 
-export interface SceneViewProps {
+export interface WebGPUSceneViewConstructor {
   device: GPUDevice;
   scene: Scene;
   context: GPUCanvasContext;
 }
-interface ISceneView extends SceneViewProps {
-  init: () => void;
-  render: () => void;
-  update: () => void;
-  destroy: () => void;
+interface ISceneView extends WebGPUSceneViewConstructor {
+  init(): void;
+  render(): void;
+  update(): void;
+  destroy(): void;
 }
 
 /**
  * SceneView is a class who group asset views and manage render lifecycle.
  * SceneView render data on canvas, can update or destroy asset views
  */
-export default class SceneView implements ISceneView {
+export default class WebGPUSceneView extends SceneView implements ISceneView {
   device: GPUDevice;
   context: GPUCanvasContext;
-  scene: Scene;
   viewFactory: ViewsFactory;
   views: View[] = [];
 
-  constructor({ scene, device, context }: SceneViewProps) {
-    this.device = device;
-    this.scene = scene;
-    this.context = context;
-    this.viewFactory = new ViewsFactory(device, context);
+  constructor(properties: WebGPUSceneViewConstructor) {
+    super(properties);
+    this.device = properties.device;
+    this.context = properties.context;
+    this.viewFactory = new ViewsFactory(this.device, this.context);
   }
 
   /**

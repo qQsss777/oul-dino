@@ -1,4 +1,4 @@
-import GameApplication from "./webgpu-application/application";
+import WebGPUGameApplication from "./webgpu-application/webGPUApplication";
 import { generateGame } from "./game";
 import "./style.css";
 
@@ -9,12 +9,12 @@ async function main() {
   }
   const game = await generateGame();
 
-  const gameApplication = new GameApplication({
+  const webGPUgameApplication = new WebGPUGameApplication({
     canvas,
     game,
   });
-  await gameApplication.init();
-  gameApplication.render();
+  await webGPUgameApplication.init();
+  webGPUgameApplication.render();
 }
 
 window.addEventListener("DOMContentLoaded", () => {

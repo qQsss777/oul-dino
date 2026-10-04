@@ -11,7 +11,7 @@ export interface IAssetConstructor {
 }
 
 interface IAssetProperties extends IAssetConstructor {
-  load: () => Promise<void>;
+  load(): Promise<void>;
 }
 
 abstract class Asset implements IAssetProperties {

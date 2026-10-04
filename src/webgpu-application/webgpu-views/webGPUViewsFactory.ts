@@ -1,15 +1,15 @@
 import type Actor from "../../core/actor/actor";
 import ImageAsset from "../../core/asset/imageAsset";
-import ActorImageView from "./actorImageView";
-import ActorMeshView from "./actorMeshView";
-import type View from "./view";
+import WebGPUActorImageView from "./webGPUActorImageView";
+import WebGPUActorMeshView from "./webGPUActorMeshView";
+import type BaseView from "./webGPUBaseView";
 
-interface IViewsFactoryProps {
+interface IWebGPUViewsFactoryProperties {
   device: GPUDevice;
   context: GPUCanvasContext;
-  createView: (actor: Actor) => View;
+  createView(actor: Actor): BaseView;
 }
-export default class ViewsFactory implements IViewsFactoryProps {
+export default class WebGPUViewsFactory implements IWebGPUViewsFactoryProperties {
   device: GPUDevice;
   context: GPUCanvasContext;
 
@@ -18,15 +18,15 @@ export default class ViewsFactory implements IViewsFactoryProps {
     this.context = context;
   }
 
-  createView(actor: Actor): View {
+  createView(actor: Actor): BaseView {
     if (actor.asset instanceof ImageAsset) {
-      return new ActorImageView({
+      return new WebGPUActorImageView({
         actor,
         device: this.device,
         context: this.context,
       });
     } else {
-      return new ActorMeshView({
+      return new WebGPUActorMeshView({
         actor,
         device: this.device,
         context: this.context,

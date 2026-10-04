@@ -1,7 +1,10 @@
 import type ImageAsset from "../../core/asset/imageAsset";
-import View, { type IBindGroupResources, type IViewConstructor } from "./view";
+import BaseView, {
+  type IBindGroupResources,
+  type IViewConstructor,
+} from "./webGPUBaseView";
 
-export default class ActorImageView extends View {
+export default class WebGPUActorImageView extends BaseView {
   texture: GPUTexture;
   sampler: GPUSampler;
   bindGroupResources: IBindGroupResources;
@@ -47,7 +50,7 @@ export default class ActorImageView extends View {
     this.device.queue.writeBuffer(this.locationsBuffer, 0, this.locations);
   }
 
-  render(pass: GPURenderPassEncoder): void {
+  override render(pass: GPURenderPassEncoder): void {
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.bindGroupResources.bindGroup);
     pass.setVertexBuffer(0, this.geometryBuffer);

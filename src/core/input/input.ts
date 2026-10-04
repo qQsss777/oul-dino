@@ -12,7 +12,7 @@ interface IInputProperties extends IInputConstructor {
    * Validate data and calculate number of movements
    * @param data
    */
-  compute: (data?: any) => void;
+  compute(data?: any): void;
   /**
    * Execute location update
    */
