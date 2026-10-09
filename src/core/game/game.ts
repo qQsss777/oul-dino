@@ -13,7 +13,7 @@ interface IGameConstructor {
 interface IGameProperties extends IGameConstructor {
   requestUpdate(deltaTime: number): void;
   updateLevel(): void;
-  notifyInput(inputPayloads: IInputNotification[]): void;
+  notifyInputs(inputPayloads: IInputNotification[]): void;
 }
 
 export default class Game extends EventEmitter implements IGameProperties {

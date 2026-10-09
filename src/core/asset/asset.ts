@@ -24,6 +24,7 @@ export interface IBoundingBox {
 
 interface IAssetProperties extends IAssetConstructor {
   load(): Promise<void>;
+  clone(): Asset;
 }
 
 abstract class Asset implements IAssetProperties {
@@ -72,6 +73,8 @@ abstract class Asset implements IAssetProperties {
     return { xMin, xMax, yMin, yMax };
   }
   abstract load(): Promise<void>;
+
+  abstract clone(): Asset;
 }
 
 export default Asset;

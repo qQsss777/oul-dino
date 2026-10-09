@@ -52,6 +52,17 @@ class ImageAsset extends Asset implements ImageAssetProperties {
       colorSpaceConversion: "none",
     });
   }
+
+  clone(): ImageAsset {
+    return new ImageAsset({
+      label: `${this.label}cloned`,
+      locations: structuredClone(this.locations),
+      geometry: structuredClone(this.geometry),
+      sourcePath: this.sourcePath,
+      uvs: structuredClone(this.uvs),
+      properties: structuredClone(this.properties),
+    });
+  }
 }
 
 export default ImageAsset;

@@ -22,6 +22,11 @@ export interface IActorProperties extends IActorConstructor {
    * @param value new value
    */
   updateAsset(key: string, value: unknown): void;
+
+  /**
+   * Clone an actor
+   */
+  clone(): Actor;
 }
 
 /**
@@ -61,6 +66,16 @@ class Actor extends EventEmitter implements IRenderable, IActorProperties {
 
   isUpdating(): boolean {
     return this.#updating;
+  }
+
+  clone(): Actor {
+    return new Actor({
+      label: `${this.label}cloned`,
+      enableCollision: this.enableCollision,
+      roles: [...this.roles],
+      tags: [...this.tags],
+      asset: this.asset.clone(),
+    });
   }
 }
 

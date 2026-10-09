@@ -48,6 +48,7 @@ const enemy = new ImageAsset({
   },
 });
 
+const enemies = [];
 const enemyActor = new MoveableActor({
   asset: enemy,
   label: "enemy",
@@ -59,4 +60,20 @@ const moveInput = new MoveInput({
   loop: true,
 });
 enemyActor.registerInput(moveInput);
-export default enemyActor;
+enemies.push(enemyActor);
+for (let i = 0; i < 2; i++) {
+  const newEnemyActor = enemyActor.clone() as MoveableActor;
+  newEnemyActor.label += i;
+  const updateLocations = [...newEnemyActor.asset.locations];
+  updateLocations[0][0] = i === 0 ? 0.5 : 0.7;
+  newEnemyActor.asset.locations = updateLocations;
+  const moveInput = new MoveInput({
+    label: "move",
+    name: "move",
+    loop: true,
+  });
+  newEnemyActor.registerInput(moveInput);
+  enemies.push(newEnemyActor);
+}
+
+export default enemies;

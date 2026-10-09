@@ -48,4 +48,14 @@ export default class MoveableActor extends Actor implements IActorProperties {
   isUpdating(): boolean {
     return !!this.inputs.find((input) => input.state === "busy");
   }
+
+  clone(): MoveableActor {
+    return new MoveableActor({
+      label: `${this.label}cloned`,
+      enableCollision: this.enableCollision,
+      roles: [...this.roles],
+      tags: [...this.tags],
+      asset: this.asset.clone(),
+    });
+  }
 }
