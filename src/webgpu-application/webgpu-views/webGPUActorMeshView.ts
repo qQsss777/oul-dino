@@ -47,7 +47,7 @@ export default class WebGPUActorMeshView extends BaseView {
     this.device.queue.writeBuffer(this.matrixBuffer, 0, this.matrix);
   }
 
-  destroy(): void {
+  destroyActor(): void {
     this.geometryBuffer?.destroy();
     this.materialBuffer.destroy();
     this.matrixBuffer.destroy();

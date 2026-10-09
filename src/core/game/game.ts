@@ -12,9 +12,7 @@ interface IGameConstructor {
 
 interface IGameProperties extends IGameConstructor {
   requestUpdate(deltaTime: number): void;
-  updateScene(): void;
   updateLevel(): void;
-  hasSceneUpdate(): boolean;
   notifyInput(inputName: InputName): void;
 }
 
@@ -49,14 +47,5 @@ export default class Game extends EventEmitter implements IGameProperties {
     };
     // prepare new data and update first update
     this.scene.notifyInputs(inputPayload);
-  }
-
-  updateScene(): void {
-    this.scene.update();
-    this.emit("updated");
-  }
-
-  hasSceneUpdate(): boolean {
-    return this.scene.isUpdating();
   }
 }

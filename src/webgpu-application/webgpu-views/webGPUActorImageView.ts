@@ -61,7 +61,7 @@ export default class WebGPUActorImageView extends BaseView {
   }
 
   // delete buffers
-  destroy(): void {
+  destroyActor(): void {
     this.geometryBuffer.destroy();
     this.uvBuffer.destroy();
     this.offsetBuffer.destroy();

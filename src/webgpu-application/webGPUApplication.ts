@@ -62,11 +62,11 @@ export default class webGPUApplication implements GameApplicationProperties {
     this.#attachGameEvents();
 
     // raF pour une animation fluide
-    //requestAnimationFrame(this.#renderLoop);
+    requestAnimationFrame(this.#renderLoop);
   }
 
   render() {
-    this.sceneView?.render();
+    this.sceneView?.requestRender();
   }
 
   #attachResizeObserver() {
