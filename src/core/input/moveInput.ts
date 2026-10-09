@@ -45,6 +45,8 @@ class MoveInput extends Input<IMoveInputPayload> implements IMoveConstructor {
       return location;
     });
     this.actorInstance.updateAsset("locations", newLocations);
+    // une seule étape
+    this.state = "free";
   }
 }
 

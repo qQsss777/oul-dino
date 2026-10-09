@@ -9,9 +9,13 @@ class JumpInput extends Input<IJumpInputPayload> {
   compute(data?: IJumpInputPayload | undefined) {
     if (data && this.actorInstance) {
       const { speed, distance } = data;
-      const shiftsCount = Math.round(distance / speed);
-      const shiftsPositiveArray = new Array(shiftsCount / 2).fill(speed);
-      const shiftsNegativeArray = new Array(shiftsCount / 2).fill(-speed);
+      let shiftsCount = Math.max(2, Math.round(distance / speed));
+      if (shiftsCount % 2 !== 0) {
+        shiftsCount += 1;
+      }
+      const halfCount = shiftsCount / 2;
+      const shiftsPositiveArray = new Array(halfCount).fill(speed);
+      const shiftsNegativeArray = new Array(halfCount).fill(-speed);
       this.locations = [...shiftsPositiveArray, ...shiftsNegativeArray][
         Symbol.iterator
       ]();
