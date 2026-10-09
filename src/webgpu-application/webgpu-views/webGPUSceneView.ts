@@ -11,7 +11,6 @@ export interface WebGPUSceneViewConstructor {
 interface ISceneView extends WebGPUSceneViewConstructor {
   init(): void;
   render(): void;
-  update(): void;
   destroy(): void;
 }
 
@@ -24,12 +23,13 @@ export default class WebGPUSceneView extends SceneView implements ISceneView {
   context: GPUCanvasContext;
   viewFactory: ViewsFactory;
   views: View[] = [];
+  #renderRequested = false;
 
   constructor(properties: WebGPUSceneViewConstructor) {
     super(properties);
     this.device = properties.device;
     this.context = properties.context;
-    this.viewFactory = new ViewsFactory(this.device, this.context);
+    this.viewFactory = new ViewsFactory(this.device, this.context, this);
   }
 
   /**
@@ -45,6 +45,9 @@ export default class WebGPUSceneView extends SceneView implements ISceneView {
    * Draw data on the canvas
    */
   render(): void {
+    this.views.forEach((v) => {
+      v.update();
+    });
     const renderPassDescriptor = {
       label: "renderPass",
       colorAttachments: [
@@ -63,25 +66,19 @@ export default class WebGPUSceneView extends SceneView implements ISceneView {
     });
     pass.end();
     this.device.queue.submit([encoder.finish()]);
+    if (this.scene.isUpdating()) {
+      requestAnimationFrame(() => {
+        this.scene.update();
+      });
+    }
   }
 
-  /**
-   * Upate view resources.
-   * Call render method after
-   */
-  update(): void {
-    this.views.forEach((v) => {
-      v.update();
-    });
-    this.render();
-  }
-
-  /**
-   * Destroy all views
-   */
-  destroy(): void {
-    this.views.forEach((v) => {
-      v.destroy();
+  requestRender(): void {
+    if (this.#renderRequested) return;
+    this.#renderRequested = true;
+    requestAnimationFrame(() => {
+      this.#renderRequested = false;
+      this.render();
     });
   }
 }

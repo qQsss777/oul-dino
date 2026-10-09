@@ -25,11 +25,6 @@ export default class WebGPUActorMeshView extends BaseView {
     this.bindGroupResources = this.createBindGroupResources();
     this.shaderModule = this.createShaderModule();
     this.pipeline = this.createPipeline();
-    this.device.queue.writeBuffer(
-      this.geometryBuffer,
-      /*bufferOffset=*/ 0,
-      this.asset.geometry.value,
-    );
     this.device.queue.writeBuffer(this.materialBuffer, 0, this.materialData);
     this.device.queue.writeBuffer(this.matrixBuffer, 0, this.matrix);
   }
@@ -199,7 +194,9 @@ export default class WebGPUActorMeshView extends BaseView {
         @builtin(position) vec4f {
         let position = pos + locations[instanceIndex];
         let positionComputed = (matrix * vec3f(position, 1)).xy;
-        return vec4f(positionComputed, 0, 1);
+        let normalizedPosition =
+              positionComputed * 2.0 - 1.0;
+        return vec4f(normalizedPosition, 0, 1);
       }
       @fragment
       fn fragmentMain() -> @location(0) vec4f {

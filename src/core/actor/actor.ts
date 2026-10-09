@@ -1,5 +1,7 @@
 import type Asset from "../asset/asset";
 import type { IRenderable } from "../scene/renderable";
+import { emitEvent } from "../utils/decorator/EventDecorator";
+import EventEmitter from "../utils/event/EventEmitter";
 
 export interface IActorConstructor {
   asset: Asset;
@@ -24,7 +26,7 @@ export interface IActorProperties extends IActorConstructor {
 /**
  * Embed asset and manage it
  */
-class Actor implements IRenderable, IActorProperties {
+class Actor extends EventEmitter implements IRenderable, IActorProperties {
   asset: Asset;
   label: string;
   roles: string[];
@@ -32,6 +34,7 @@ class Actor implements IRenderable, IActorProperties {
   #updating = false;
 
   constructor(properties: IActorConstructor) {
+    super();
     this.asset = properties.asset;
     this.label = properties.label;
     this.tags = properties.tags ?? [];
@@ -45,6 +48,7 @@ class Actor implements IRenderable, IActorProperties {
     return this.asset;
   }
 
+  @emitEvent("updated")
   updateAsset(key: string, value: unknown): void {
     if (key in this.asset) {
       const k = key as keyof typeof this.asset;

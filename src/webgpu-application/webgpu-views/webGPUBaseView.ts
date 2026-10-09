@@ -1,14 +1,14 @@
-import type Actor from "../../core/actor/actor";
 import type Asset from "../../core/asset/asset";
-import ActorView from "../../core/views/actorView";
+import ActorView, {
+  type IActorViewConstructor,
+} from "../../core/views/actorView";
 
 export interface IBindGroupResources {
   bindGroupLayout: GPUBindGroupLayout;
   bindGroup: GPUBindGroup;
 }
 
-export interface IViewConstructor {
-  actor: Actor;
+export interface IViewConstructor extends IActorViewConstructor {
   device: GPUDevice;
   context: GPUCanvasContext;
 }
@@ -47,6 +47,12 @@ export default abstract class WebGPUBaseView
     this.locations = new Float32Array(this.asset.locations.flat());
     this.geometryBuffer = this.#createGeometryBuffer();
     this.locationsBuffer = this.#createlocationsBuffer();
+    this.device.queue.writeBuffer(
+      this.geometryBuffer,
+      /*bufferOffset=*/ 0,
+      this.asset.geometry.value,
+    );
+    this.device.queue.writeBuffer(this.locationsBuffer, 0, this.locations);
   }
 
   protected abstract createShaderModule(): GPUShaderModule;

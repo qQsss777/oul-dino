@@ -40,14 +40,8 @@ export default class WebGPUActorImageView extends BaseView {
       { texture: this.texture },
       { width: sourceData.width, height: sourceData.height },
     );
-    this.device.queue.writeBuffer(
-      this.geometryBuffer,
-      /*bufferOffset=*/ 0,
-      this.asset.geometry.value,
-    );
     this.device.queue.writeBuffer(this.uvBuffer, /*bufferOffset=*/ 0, this.uvs);
     this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
-    this.device.queue.writeBuffer(this.locationsBuffer, 0, this.locations);
   }
 
   override render(pass: GPURenderPassEncoder): void {

@@ -6,8 +6,8 @@ export interface SceneViewProps {
 }
 interface ISceneView extends SceneViewProps {
   init(): void;
+  requestRender(): void;
   render(): void;
-  update(): void;
   destroy(): void;
 }
 
@@ -34,15 +34,9 @@ export default abstract class SceneView implements ISceneView {
   abstract render(): void;
 
   /**
-   * Upate view resources.
-   * Call render method after
+   * Draw data on the canvas
    */
-  update(): void {
-    this.views.forEach((v) => {
-      v.update();
-    });
-    this.render();
-  }
+  abstract requestRender(): void;
 
   /**
    * Destroy all views

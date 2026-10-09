@@ -44,15 +44,8 @@ abstract class Input<T> implements IInputProperties {
 
   setInstance(actor: MoveableActor) {
     this.actorInstance = actor;
-    this.registerInstance(actor);
   }
 
-  /**
-   * Register instance
-   * @param instance MoveableActor instance
-   * don't know if it's pertinent to add method to instance but just for my pleasure
-   */
-  protected abstract registerInstance(instance: MoveableActor): void;
   abstract compute(data?: T): void;
   abstract execute(): void;
 }

@@ -44,13 +44,11 @@ export default class Game extends EventEmitter implements IGameProperties {
       name: inputName,
       data: {
         distance: 0.5,
-        speed: 0.01 / 90,
+        speed: 0.01,
       },
     };
-    // prepare new data
+    // prepare new data and update first update
     this.scene.notifyInputs(inputPayload);
-    // update scene
-    this.updateScene();
   }
 
   updateScene(): void {

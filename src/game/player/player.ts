@@ -1,4 +1,3 @@
-import Actor from "../../core/actor/actor";
 import MoveableActor from "../../core/actor/moveableActor";
 import ImageAsset from "../../core/asset/imageAsset";
 import JumpInput from "../../core/input/jumpInput";

@@ -1,5 +1,5 @@
 import type Game from "../core/game/game";
-import SceneView from "./webgpu-views/webGPUSceneView";
+import WebGPUSceneView from "./webgpu-views/webGPUSceneView";
 
 interface WebGPUGameApplicationConstructor {
   game: Game;
@@ -21,7 +21,7 @@ export default class webGPUApplication implements GameApplicationProperties {
   device: GPUDevice | null = null;
   context: GPUCanvasContext | null = null;
   presentationFormat: GPUTextureFormat | null = null;
-  sceneView: SceneView | null = null;
+  sceneView: WebGPUSceneView | null = null;
   #previousTime: number = 0;
   #abortController = new AbortController();
 
@@ -53,7 +53,7 @@ export default class webGPUApplication implements GameApplicationProperties {
       device: this.device,
       format: this.presentationFormat,
     });
-    this.sceneView = new SceneView({
+    this.sceneView = new WebGPUSceneView({
       scene: this.game.scene,
       device: this.device,
       context: this.context,
@@ -62,7 +62,7 @@ export default class webGPUApplication implements GameApplicationProperties {
     this.#attachGameEvents();
 
     // raF pour une animation fluide
-    requestAnimationFrame(this.#renderLoop);
+    //requestAnimationFrame(this.#renderLoop);
   }
 
   render() {
@@ -81,15 +81,6 @@ export default class webGPUApplication implements GameApplicationProperties {
   }
 
   #attachGameEvents() {
-    this.game.on("updated", () => {
-      this.sceneView?.update();
-      if (this.game.hasSceneUpdate()) {
-        requestAnimationFrame(() => {
-          this.game.updateScene();
-        });
-      }
-    });
-
     document.addEventListener(
       "keypress",
       (event) => {
@@ -103,6 +94,7 @@ export default class webGPUApplication implements GameApplicationProperties {
     );
   }
 
+  // boucle de rendu pour les mise à jour hors input
   #renderLoop = (time: number) => {
     const deltaTime = (time - this.#previousTime) / 1000;
     this.#previousTime = time;
