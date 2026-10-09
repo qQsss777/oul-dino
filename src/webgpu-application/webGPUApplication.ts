@@ -1,11 +1,5 @@
-import type Actor from "../core/actor/actor";
 import type Game from "../core/game/game";
 import type { IInputNotification } from "../core/scene/scene";
-import {
-  actorBoudingBoxes,
-  gridHorizontalActor,
-  gridVerticalActor,
-} from "./debug/debugMode";
 import WebGPUSceneView from "./webgpu-views/webGPUSceneView";
 
 interface WebGPUGameApplicationConstructor {
@@ -31,11 +25,9 @@ export default class webGPUApplication implements GameApplicationProperties {
   sceneView: WebGPUSceneView | null = null;
   #previousTime: number = 0;
   #abortController = new AbortController();
-  #debug = false;
   constructor(properties: WebGPUGameApplicationConstructor) {
     this.game = properties.game;
     this.canvas = properties.canvas;
-    this.#debug = true;
   }
 
   async init(): Promise<void> {
@@ -67,16 +59,6 @@ export default class webGPUApplication implements GameApplicationProperties {
       context: this.context,
     });
     this.sceneView.init();
-    if (this.#debug) {
-      const targets = this.sceneView.scene.actors.filter(
-        (a) => a.enableCollision,
-      );
-      actorBoudingBoxes(targets).forEach((a) => {
-        this.sceneView.scene.add(a);
-      });
-      this.sceneView.scene.add(gridHorizontalActor);
-      this.sceneView.scene.add(gridVerticalActor);
-    }
     this.#attachGameEvents();
 
     // raF pour une animation fluide

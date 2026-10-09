@@ -1,7 +1,14 @@
 import type ImageAsset from "../core/asset/imageAsset";
 import Game from "../core/game/game";
 import type { IInputNotification } from "../core/scene/scene";
+import {
+  actorBoudingBoxes,
+  gridHorizontalActor,
+  gridVerticalActor,
+} from "./debug/debugMode";
 import { loadScene } from "./scene/scene";
+
+const debug = true;
 
 const generateGame = async (): Promise<Game> => {
   const scene = await loadScene();
@@ -47,6 +54,15 @@ const generateGame = async (): Promise<Game> => {
     }
     game.emit("updated");
   });
+
+  if (debug) {
+    const targets = scene.actors.filter((a) => a.enableCollision);
+    actorBoudingBoxes(targets).forEach((a) => {
+      scene.add(a);
+    });
+    scene.add(gridHorizontalActor);
+    scene.add(gridVerticalActor);
+  }
   return game;
 };
 
