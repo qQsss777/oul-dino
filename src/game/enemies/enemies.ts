@@ -51,6 +51,7 @@ const enemy = new ImageAsset({
 const enemyActor = new MoveableActor({
   asset: enemy,
   label: "enemy",
+  enableCollision: true,
 });
 const moveInput = new MoveInput({
   label: "move",

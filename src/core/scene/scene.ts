@@ -1,6 +1,8 @@
 import type Actor from "../actor/actor";
 import MoveableActor from "../actor/moveableActor";
 import type { InputName } from "../input/input";
+import { emitEvent } from "../utils/decorator/EventDecorator";
+import EventEmitter from "../utils/event/EventEmitter";
 
 interface ISceneConstructor {
   actors: Actor[];
@@ -10,8 +12,8 @@ interface ISceneConstructor {
 export interface IInputNotification {
   name: InputName;
   data?: unknown;
-  tag?: string[];
-  role?: string[];
+  tags?: string[];
+  roles?: string[];
 }
 
 interface SceneProperties extends ISceneConstructor {
@@ -21,6 +23,7 @@ interface SceneProperties extends ISceneConstructor {
   findactorByRole(role: string): Actor[];
   removeAllActors(): void;
   isUpdating(): boolean;
+  add(actor: Actor): void;
   /**
    * Send new data to actor for their input
    * @param payload input notification
@@ -32,11 +35,12 @@ interface SceneProperties extends ISceneConstructor {
    */
   update(): void;
 }
-export default class Scene implements SceneProperties {
+export default class Scene extends EventEmitter implements SceneProperties {
   actors: Actor[];
   backgroundColor: number[];
 
   constructor(properties: ISceneConstructor) {
+    super();
     this.actors = properties.actors;
     this.backgroundColor = properties.backgroundColor;
   }
@@ -83,5 +87,11 @@ export default class Scene implements SceneProperties {
         actor.executeInputs();
       }
     });
+  }
+
+  @emitEvent("add")
+  add(actor: Actor): Actor {
+    this.actors.push(actor);
+    return actor;
   }
 }

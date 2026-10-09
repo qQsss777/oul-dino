@@ -50,6 +50,7 @@ const player = new ImageAsset({
 
 const playerActor = new MoveableActor({
   asset: player,
+  enableCollision: true,
   label: "player",
 });
 const jumpInput = new JumpInput({

@@ -1,5 +1,6 @@
 import type ImageAsset from "../core/asset/imageAsset";
 import Game from "../core/game/game";
+import type { IInputNotification } from "../core/scene/scene";
 import { loadScene } from "./scene/scene";
 
 const generateGame = async (): Promise<Game> => {
@@ -11,6 +12,15 @@ const generateGame = async (): Promise<Game> => {
   });
 
   game.on("update-request", () => {
+    const moveInput: IInputNotification = {
+      name: "move",
+      roles: ["enemy"],
+      data: {
+        speed: 0.005,
+        direction: "left",
+      },
+    };
+    game.notifyInputs([moveInput]);
     const groundActor = game.scene.findactorByLabel("ground");
     if (groundActor) {
       const newImageGroundProperties = {

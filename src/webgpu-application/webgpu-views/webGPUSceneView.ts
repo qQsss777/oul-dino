@@ -1,3 +1,4 @@
+import type Actor from "../../core/actor/actor";
 import type Scene from "../../core/scene/scene";
 import SceneView from "../../core/views/sceneView";
 import type View from "./webGPUBaseView";
@@ -36,9 +37,9 @@ export default class WebGPUSceneView extends SceneView implements ISceneView {
    * Associate a view for each asset instance
    */
   init() {
-    this.views = this.scene.actors.map((actor) =>
-      this.viewFactory.createView(actor),
-    );
+    this.scene.actors.forEach((actor) => {
+      this.views.push(this.createView(actor));
+    });
   }
 
   /**
@@ -80,5 +81,9 @@ export default class WebGPUSceneView extends SceneView implements ISceneView {
       this.#renderRequested = false;
       this.render();
     });
+  }
+
+  protected createView(actor: Actor): View {
+    return this.viewFactory.createView(actor);
   }
 }

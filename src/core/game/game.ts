@@ -13,7 +13,7 @@ interface IGameConstructor {
 interface IGameProperties extends IGameConstructor {
   requestUpdate(deltaTime: number): void;
   updateLevel(): void;
-  notifyInput(inputName: InputName): void;
+  notifyInput(inputPayloads: IInputNotification[]): void;
 }
 
 export default class Game extends EventEmitter implements IGameProperties {
@@ -37,15 +37,10 @@ export default class Game extends EventEmitter implements IGameProperties {
     console.log("ooo");
   }
 
-  notifyInput(inputName: InputName) {
-    const inputPayload: IInputNotification = {
-      name: inputName,
-      data: {
-        distance: 0.5,
-        speed: 0.01,
-      },
-    };
+  notifyInputs(inputPayloads: IInputNotification[]) {
     // prepare new data and update first update
-    this.scene.notifyInputs(inputPayload);
+    inputPayloads.forEach((ip) => {
+      this.scene.notifyInputs(ip);
+    });
   }
 }

@@ -38,6 +38,9 @@ export default class WebGPUActorMeshView extends BaseView {
 
   // update
   update(): void {
+    this.locations = new Float32Array(this.asset.locations.flat());
+    this.device.queue.writeBuffer(this.locationsBuffer, 0, this.locations);
+
     // material
     this.materialData = this.createMaterialData();
     this.device.queue.writeBuffer(this.materialBuffer, 0, this.materialData);
@@ -75,7 +78,9 @@ export default class WebGPUActorMeshView extends BaseView {
     const scaleMatrix = mat3.scaling(scale);
     // echelle de l'espace, les matrices se lisent de droite à gauche
     // d'abord l'échelle, puis la rotation, puis la transformation des coordonnées / ratio, puis la translation
-    const aspectMatrix = mat3.scaling([this.getAspectRatio(), 1]);
+    const aspectMatrix = this.asset.preserveRatio
+      ? mat3.scaling([this.getAspectRatio(), 1])
+      : mat3.scaling([1, 1]);
     let matrix = mat3.multiply(translationMatrix, aspectMatrix);
     matrix = mat3.multiply(matrix, rotationMatrix);
     matrix = mat3.multiply(matrix, scaleMatrix);
@@ -205,6 +210,7 @@ export default class WebGPUActorMeshView extends BaseView {
   `,
     });
   }
+
   protected createPipeline(): GPURenderPipeline {
     return this.device.createRenderPipeline({
       label: "Cell pipeline",
@@ -233,9 +239,37 @@ export default class WebGPUActorMeshView extends BaseView {
         targets: [
           {
             format: this.context.getConfiguration()!.format,
+            blend: {
+              color: {
+                srcFactor: "src-alpha",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add",
+              },
+              alpha: {
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+                operation: "add",
+              },
+            },
           },
         ],
       },
+      primitive: {
+        topology: this.translatePrimitive(),
+      },
     });
+  }
+
+  protected translatePrimitive(): GPUPrimitiveTopology {
+    switch (this.asset.geometry.geometryType) {
+      case "triangle":
+        return "triangle-list";
+      case "line":
+        return "line-list";
+      case "point":
+        return "point-list";
+      default:
+        return "triangle-list";
+    }
   }
 }

@@ -9,7 +9,7 @@ export function emitEvent(eventName: string) {
     // biome-ignore lint/suspicious/noExplicitAny: decorator
     descriptor.value = function (this: any, ...args: any[]) {
       const result = originalMethod.apply(this, args);
-      if (this.emit) this.emit(eventName);
+      if (this.emit) this.emit(eventName, result);
       return result;
     };
   };

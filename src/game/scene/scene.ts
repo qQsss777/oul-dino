@@ -8,7 +8,7 @@ import sunActor from "../sun/sun";
 // game is for interaction with GameApplication
 const loadScene = async (): Promise<Scene> => {
   const scene = new Scene({
-    actors: [groundActor, sunActor, cloudActor, playerActor, enemyActor],
+    actors: [groundActor, sunActor, cloudActor, enemyActor, playerActor],
     backgroundColor: [0.4, 0.87, 0.93, 1],
   });
   await scene.load();

@@ -1,21 +1,21 @@
-type EventCallback = <T>(data: T) => void;
+type EventCallback<T = unknown> = (data: T) => void;
 export interface IHandler {
   remove: () => void;
 }
 interface IEventEmitterProperties {
-  on(eventName: string, callback: EventCallback): IHandler;
+  on<T = unknown>(eventName: string, callback: EventCallback<T>): IHandler;
   emit<T>(eventName: string, data?: T): void;
 }
 
 export default abstract class EventEmitter implements IEventEmitterProperties {
-  private eventsRegistered = new Map<string, EventCallback[]>();
+  private eventsRegistered = new Map<string, EventCallback<any>[]>();
 
-  on(eventName: string, callback: EventCallback): IHandler {
+  on<T = unknown>(eventName: string, callback: EventCallback<T>): IHandler {
     const eventNameInMap = this.eventsRegistered.get(eventName);
     if (eventNameInMap) {
-      eventNameInMap.push(callback);
+      eventNameInMap.push(callback as EventCallback<any>);
     } else {
-      this.eventsRegistered.set(eventName, [callback]);
+      this.eventsRegistered.set(eventName, [callback as EventCallback<any>]);
     }
 
     const remove = () => {
