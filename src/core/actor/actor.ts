@@ -6,6 +6,7 @@ import EventEmitter from "../utils/event/EventEmitter";
 export interface IActorConstructor {
   asset: Asset;
   label: string;
+  enableCollision?: boolean;
   roles?: string[];
   tags?: string[];
 }
@@ -31,12 +32,14 @@ class Actor extends EventEmitter implements IRenderable, IActorProperties {
   label: string;
   roles: string[];
   tags: string[];
+  enableCollision: boolean;
   #updating = false;
 
   constructor(properties: IActorConstructor) {
     super();
     this.asset = properties.asset;
     this.label = properties.label;
+    this.enableCollision = properties.enableCollision ?? false;
     this.tags = properties.tags ?? [];
     this.roles = properties.roles ?? [];
   }

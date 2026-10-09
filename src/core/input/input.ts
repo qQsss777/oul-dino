@@ -2,7 +2,7 @@ import type MoveableActor from "../actor/moveableActor";
 
 export type InputName = "move" | "jump" | "run";
 export type InputState = "free" | "busy";
-interface IInputConstructor {
+export interface IInputConstructor {
   label: string;
   name: InputName;
 }

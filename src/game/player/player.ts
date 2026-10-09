@@ -41,6 +41,10 @@ const player = new ImageAsset({
       x: 0,
       y: 0,
     },
+    flip: {
+      x: false,
+      y: false,
+    },
   },
 });
 

@@ -17,6 +17,10 @@ interface IImageProperties {
     x: number;
     y: number;
   };
+  flip: {
+    y: boolean;
+    x: boolean;
+  };
 }
 
 export interface ImageAssetConstructor extends IAssetConstructor {
@@ -42,8 +46,8 @@ class ImageAsset extends Asset implements ImageAssetProperties {
     this.sourcePath = properties.sourcePath;
   }
   async load(): Promise<void> {
-    const groundTexture = await fetch(this.sourcePath); //await fetch("/assets/ground-128x128.png");
-    const img = await groundTexture.blob();
+    const imageData = await fetch(this.sourcePath); //await fetch("/assets/ground-128x128.png");
+    const img = await imageData.blob();
     this.source = await createImageBitmap(img, {
       colorSpaceConversion: "none",
     });

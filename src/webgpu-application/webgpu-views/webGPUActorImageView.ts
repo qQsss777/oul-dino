@@ -54,6 +54,8 @@ export default class WebGPUActorImageView extends BaseView {
 
   //only offset
   update(): void {
+    this.uvs = this.updateUvs();
+    this.device.queue.writeBuffer(this.uvBuffer, /*bufferOffset=*/ 0, this.uvs);
     this.offset = this.createOffset();
     this.device.queue.writeBuffer(this.offsetBuffer, 0, this.offset);
     this.locations = new Float32Array(this.asset.locations.flat());
@@ -301,7 +303,19 @@ export default class WebGPUActorImageView extends BaseView {
 
   protected updateUvs(): Float32Array {
     const fitMode = this.asset.properties.fit.mode;
-    if (fitMode === "stretch") return this.asset.uvs.slice();
+    const needInvertX = this.asset.properties.flip.x;
+    const needInvertY = this.asset.properties.flip.y;
+    if (fitMode === "stretch") {
+      let uvs = this.asset.uvs.slice();
+      uvs = uvs.map((uv, index) => {
+        if (index % 2 === 0) {
+          return needInvertX ? 1 - uv : uv;
+        } else {
+          return needInvertY ? 1 - uv : uv;
+        }
+      });
+      return uvs;
+    }
     const canvas = this.context.canvas;
     const image = this.asset.source as ImageBitmap;
 
@@ -335,12 +349,11 @@ export default class WebGPUActorImageView extends BaseView {
     // 4. on calcule les ratio
     const ratioX = (canvasWidth * shapeXLength) / imageWidth;
     const ratioY = (canvasHeight * shapeYLength) / imageHeight;
-
     return this.asset.uvs.map((uv, index) => {
       if (index % 2 === 0) {
-        return uv * ratioX;
+        return needInvertX ? 1 - uv * ratioX : uv * ratioX;
       } else {
-        return uv * ratioY;
+        return needInvertY ? 1 - uv * ratioY : uv * ratioY;
       }
     });
   }
